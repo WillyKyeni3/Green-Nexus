@@ -1,5 +1,10 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@import "tailwindcss";
 
-/* Add any additional global styles here */
+@theme {
+  --color-primary: #34C759;
+  --color-primary-dark: #2E9E4D;
+  --color-primary-light: #E6F7EC;
+  --color-accent-blue: #4CA9FF;
+  --color-soft-beige: #F9F7F4;
+  --color-neutral-gray: #E5E5E5;
+}

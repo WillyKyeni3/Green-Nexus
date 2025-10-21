@@ -94,7 +94,7 @@ const LandingPage = () => {
             </div>
             <div className="relative">
               <img
-                src="https://uploadthingy.s3.us-west-1.amazonaws.com/2aWwom2cZCxv9YXv4akPGP/landing_page.png"
+                src="/landingimage.png"
                 alt="Sustainability metrics"
                 className="w-full h-auto rounded-lg"
               />
