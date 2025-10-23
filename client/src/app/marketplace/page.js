@@ -100,9 +100,9 @@ export default function MarketplacePage() {
         {/* Main Content Area */}
         <div className="flex-1 space-y-8">
           <div className="space-y-4">
-            <h1 className="text-4xl font-medium text-emerald-800">AI Market Place</h1>
+            <h1 className="text-4xl font-medium text-emerald-800">Ai Market Place</h1>
             <p className="text-3xl text-gray-600 font-normal leading-7 max-w-2xl">
-              Ask AI for eco friendly product insights & detailed analysis
+              Ask Ai for eco friendly product insights & detailed analysis
             </p>
           </div>
 
