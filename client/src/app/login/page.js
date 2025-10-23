@@ -51,6 +51,22 @@ const LoginPage = () => {
             </p>
           </div>
 
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-gray p-8">
+            <div className="flex mb-6">
+              <button
+                className={`flex-1 py-2 font-medium border-b-2 ${isLogin ? 'border-primary text-primary-dark' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setIsLogin(true)}
+              >
+                Login
+              </button>
+              <button
+                className={`flex-1 py-2 font-medium border-b-2 ${!isLogin ? 'border-primary text-primary-dark' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setIsLogin(false)}
+              >
+                Sign Up
+              </button>
+            </div>
+
     );
 };
 
