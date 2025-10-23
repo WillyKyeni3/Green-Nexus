@@ -138,6 +138,23 @@ const LoginPage = () => {
                   />
                 </div>
               </div>
+
+              <Button type="submit" fullWidth>
+                {isLogin ? 'Login' : 'Create Account'}
+              </Button>
+              
+              {isLogin && (
+                <div className="mt-4 text-center">
+                  <a
+                    href="#forgot-password"
+                    className="text-sm text-primary hover:text-primary-dark"
+                  >
+                    Forgot your password?
+                  </a>
+                </div>
+              )}
+            </form>
+          </div>
               
 
     );
