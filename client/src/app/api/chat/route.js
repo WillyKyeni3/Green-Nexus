@@ -1,6 +1,7 @@
+// client/src/app/api/chat/route.js
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+export async function POST(request) {
   try {
     const { message } = await request.json();
 
