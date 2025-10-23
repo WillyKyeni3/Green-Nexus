@@ -99,9 +99,9 @@ const DashboardPage = () => {
               -15% this month
             </div>
           </div>
-          <div className="h-72">
+          {/* <div className="h-72">
             <Line data={chartData} options={chartOptions} />
-          </div>
+          </div> */}
         </Card>
         <Card>
           <h3 className="text-lg font-medium text-primary-dark mb-4">
