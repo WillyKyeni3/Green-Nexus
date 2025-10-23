@@ -21,7 +21,13 @@ const Sidebar = () => {
     <div className="w-64 bg-white shadow-lg flex flex-col h-full">
       <div className="p-5 border-b border-neutral-gray">
         <h1 className="text-2xl font-bold text-primary-dark flex items-center">
-          <LeafIcon className="mr-2" size={24} />
+          {/* <LeafIcon className="mr-2" size={24} /> */}
+           <img
+              src="/leaflogo.png"
+              alt="GreenNexus Logo"
+              className="h-10 w-10 object-contain rotate-[-55.7deg] "
+              
+            />
           GreenNexus
         </h1>
       </div>
