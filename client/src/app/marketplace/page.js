@@ -111,9 +111,11 @@ export default function MarketplacePage() {
             
             <div className="bg-white/80 backdrop-blur-sm rounded-lg border border-black/10 p-8">
               <div className="bg-gray-500/10 rounded-lg border border-black/40 p-8 h-52 flex items-center justify-center">
-                <div className="text-gray-500 text-3xl font-normal max-w-4xl text-center">
-                  Enter your message here....
-                </div>
+                <input 
+                  type="text"
+                  placeholder="Enter your message here...."
+                  className="w-full h-full bg-transparent text-gray-500 text-3xl font-normal focus:outline-none placeholder-gray-500"
+                />
               </div>
               
               <div className="flex justify-end mt-6">
@@ -129,5 +131,4 @@ export default function MarketplacePage() {
       </div>
     </div>
   );
-  
-} 
+}
