@@ -1,16 +1,36 @@
+# server/run.py
 import os
-from app import create_app # This should now work
+from flask import Flask, jsonify
+from app.routes import register_blueprints
 
 # Get the environment (development, production, etc.)
 config_name = os.getenv('FLASK_CONFIG') or 'development'
 
 # Create the Flask application instance
-app = create_app(config_name)
+app = Flask(__name__)
+
+# Simple root welcome route
+@app.route('/')
+def welcome():
+    return jsonify({
+        'message': 'Welcome to Green-Nexus Backend! 🌿',
+        'version': '1.0.0',
+        'endpoints': {
+            'AI Chat': '/api/chat (POST)',
+            'Auth': '/api/auth/*',
+            'Activities': '/api/activities/*',
+            'Waste Scanner': '/api/waste/*'
+        },
+        'status': 'Ready for eco-friendly queries!'
+    })
+
+# Register all API blueprints
+register_blueprints(app)
 
 if __name__ == '__main__':
     # Run the server
     app.run(
-        host='0.0.0.0', # Listen on all available interfaces
-        port=5000,      # Port number
-        debug=True      # Enable debug mode (development only!)
+        host='0.0.0.0',  # Listen on all available interfaces
+        port=5000,       # Port number
+        debug=True       # Enable debug mode (development only!)
     )
