@@ -1,11 +1,15 @@
 import os
 from app import create_app # This should now work
+# server/run.py
+from flask import Flask
+from app.routes import register_blueprints
+from app.config import Config
 
-# Get the environment (development, production, etc.)
-config_name = os.getenv('FLASK_CONFIG') or 'development'
+app = Flask(__name__)
+app.config.from_object(Config)
 
-# Create the Flask application instance
-app = create_app(config_name)
+# Register all routes
+register_blueprints(app)
 
 if __name__ == '__main__':
     # Run the server
