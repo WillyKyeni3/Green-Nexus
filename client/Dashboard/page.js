@@ -1,4 +1,3 @@
-// client/src/app/page.js
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -37,7 +36,7 @@ const DashboardPage = () => {
     datasets: [
       {
         label: 'Carbon Footprint (kg CO₂)',
-         [320, 280, 300, 250, 220, 190],
+        data: [320, 280, 300, 250, 220, 190],
         borderColor: '#34C759',
         backgroundColor: 'rgba(52, 199, 89, 0.1)',
         tension: 0.4,
@@ -247,6 +246,4 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
-
-
 
