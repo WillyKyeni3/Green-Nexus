@@ -36,6 +36,21 @@ const LoginPage = () => {
         </div>
       </div>
 
+        {/* Right side - Login/Register form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-2">
+              <LeafIcon size={32} className="text-primary mr-2" />
+              <h1 className="text-3xl font-bold text-primary-dark">
+                GreenNexus
+              </h1>
+            </div>
+            <p className="text-gray-600">
+              Your personal sustainability companion
+            </p>
+          </div>
+
     );
 };
 
