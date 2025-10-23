@@ -1,7 +1,15 @@
 // client/src/app/marketplace/page.tsx
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function MarketplacePage() {
+  const [message, setMessage] = useState('');
+
+  const handleSend = () => {
+    // TODO: Integrate AI API
+    console.log('Sending:', message);
+    setMessage('');
+  };
+
   return (
     <div className="min-h-screen bg-stone-50">
       {/* Header */}
@@ -115,15 +123,20 @@ export default function MarketplacePage() {
                   type="text"
                   placeholder="Enter your message here...."
                   className="w-full h-full bg-transparent text-gray-500 text-3xl font-normal focus:outline-none placeholder-gray-500"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                 />
               </div>
               
               <div className="flex justify-end mt-6">
-                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                <button 
+                  onClick={handleSend}
+                  className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition"
+                >
                   <div className="w-7 h-6 bg-white rounded-md flex items-center justify-center">
                     <span className="text-green-500 text-lg">➤</span>
                   </div>
-                </div>
+                </button>
               </div>
             </div>
           </div>
