@@ -1,4 +1,5 @@
 // client/src/app/marketplace/page.tsx
+"use client";
 import React, { useState } from 'react';
 
 export default function MarketplacePage() {
