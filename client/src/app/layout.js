@@ -14,6 +14,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body suppressHydrationWarning={true} className={jost.className}>
         {children}
+        
       </body>
     </html>
   );
