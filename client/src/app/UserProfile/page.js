@@ -5,10 +5,11 @@ import { ArrowLeft, Eye, EyeOff, LogOut } from 'lucide-react';
 
 export default function EditProfile() {
   const [showPassword, setShowPassword] = useState(false);
+  const [profileImage, setProfileImage] = useState('/profile.jpeg');
   const [formData, setFormData] = useState({
     username: 'Alex chart',
     email: 'alexchart@gmail.com',
-    password: '••••••••••••'
+    password: 'mySecurePassword123'
   });
 
   const handleChange = (e) => {
@@ -18,8 +19,18 @@ export default function EditProfile() {
     });
   };
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImage(e.target?.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSignOut = () => {
-    // Handle sign out logic here
     console.log('Signing out...');
   };
 
@@ -44,26 +55,15 @@ export default function EditProfile() {
               id="profile-upload"
               accept="image/*"
               className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onload = (e) => {
-                    const img = document.getElementById('profile-img');
-                    if (img) img.src = e.target?.result;
-                  };
-                  reader.readAsDataURL(file);
-                }
-              }}
+              onChange={handleImageUpload}
             />
             <label htmlFor="profile-upload" className="cursor-pointer group">
               <img
-                id="profile-img"
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop"
+                src={profileImage}
                 alt="Profile"
                 className="w-32 h-32 rounded-full object-cover group-hover:opacity-80 transition-opacity"
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-full transition-all">
+              <div className="absolute inset-0 flex items-center justify-center  bg-opacity-0 group-hover:bg-opacity-70 rounded-full transition-all">
                 <span className="text-white text-sm opacity-0 group-hover:opacity-100 transition-opacity">
                   Change
                 </span>
