@@ -155,6 +155,20 @@ const LoginPage = () => {
               )}
             </form>
           </div>
+
+          <div className="mt-6 text-center text-sm text-gray-600">
+            By continuing, you agree to GreenNexus's{' '}
+            <a href="#terms" className="text-primary hover:text-primary-dark">
+              Terms of Service
+            </a>{' '}
+            and{' '}
+            <a href="#privacy" className="text-primary hover:text-primary-dark">
+              Privacy Policy
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
               
 
     );
