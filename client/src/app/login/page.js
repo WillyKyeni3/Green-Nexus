@@ -93,6 +93,29 @@ const LoginPage = () => {
                 </div>
               )}
 
+              <div className="mb-4">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Email Address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <MailIcon size={18} className="text-gray-400" />
+                  </div>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2 border border-neutral-gray rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder="your@email.com"
+                    required
+                  />
+                </div>
+              </div>
+
     );
 };
 
