@@ -1,178 +1,198 @@
-"use client";
+'use client';
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import {
+  HomeIcon,
+  ActivityIcon,
+  RecycleIcon,
+  MessageCircleIcon,
+  UserIcon,
+  TrendingUpIcon,
+} from 'lucide-react';
+import Card from '../components/common/Card';
 
-export default function MarketplacePage() {
+const MarketplacePage = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([
-    { role: 'ai', content: 'Hello Alex ...' }
+    { role: 'ai', content: 'Hello Alex ... Ready to discover sustainable products? Ask away! 🌿' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSend = async () => {
     if (!message.trim()) return;
     
-    // Add user message to history
     const userMsg = { role: 'user', content: message };
     setMessages(prev => [...prev, userMsg]);
     setMessage('');
     setIsLoading(true);
 
     try {
-      // Send to Next.js API route
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message }),
       });
       
-      if (!response.ok) throw new Error('API error');
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
       
       const data = await response.json();
-      // Add AI response
       setMessages(prev => [...prev, { role: 'ai', content: data.response }]);
     } catch (error) {
       console.error('Error:', error);
-      setMessages(prev => [...prev, { role: 'ai', content: 'Sorry, something went wrong. Try again!' }]);
+      setMessages(prev => [...prev, { role: 'ai', content: `AI Error: ${error.message}. Check backend is running.` }]);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      {/* Header (unchanged) */}
-      <div className="h-24 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-14 h-14 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">GN</span>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header - Matches Dashboard */}
+      <div className="h-16 bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">GN</span>
             </div>
-            <span className="text-emerald-800 text-2xl font-semibold">GreenNexus</span>
+            <span className="text-emerald-800 text-xl font-semibold">GreenNexus</span>
           </div>
+          
+          {/* Welcome + Green Score */}
           <div className="flex items-center space-x-6">
-            <div className="text-gray-700 text-xl font-medium">Welcome back Alex</div>
-            <div className="flex items-center space-x-3 bg-green-100 px-6 py-2 rounded-full">
-              <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-medium">GS</span>
+            <div className="text-gray-700 text-base font-medium">Welcome back Alex</div>
+            
+            <div className="flex items-center space-x-2 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-200">
+              <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                <TrendingUpIcon size={14} className="text-white" />
               </div>
               <span className="text-emerald-800 text-sm font-medium">Green Score: 85</span>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center">
-                <span className="text-emerald-800 text-sm font-medium">AG</span>
+            
+            {/* Profile */}
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                <UserIcon size={16} className="text-emerald-800" />
               </div>
+              <span className="text-sm text-gray-600">AG</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12 flex space-x-12">
-        {/* Sidebar (unchanged) */}
-        <div className="w-56 bg-white rounded-lg shadow-sm h-[1041px]">
-          <div className="p-6 space-y-6">
-            <div className="flex items-center space-x-4 p-3 bg-white rounded-lg">
-              <div className="w-5 h-5 flex flex-col space-y-1">
-                <div className="w-[5px] h-2 bg-black rounded-full" />
-                <div className="w-3.5 h-4 bg-black rounded-full" />
+      {/* Main Content - Matches Dashboard Layout */}
+      <div className="max-w-7xl mx-auto px-4 py-6 flex space-x-6">
+        {/* Sidebar - Matches Dashboard Nav Style */}
+        <div className="w-56 bg-white rounded-lg shadow-sm border border-gray-200">
+          <nav className="p-4 space-y-2">
+            {/* Dashboard */}
+            <a href="/dashboard" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+              <div className="w-5 h-5 text-gray-600">
+                <HomeIcon size={16} />
               </div>
-              <span className="text-black text-sm font-light">Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-4 p-3">
-              <div className="w-5 h-5 flex flex-col space-y-1">
-                <div className="w-[1px] h-2 bg-gray-600 rounded-full" />
-                <div className="w-[1px] h-3.5 bg-gray-600 rounded-full" />
-                <div className="w-[1px] h-5 bg-gray-600 rounded-full" />
+              <span className="text-sm font-medium text-gray-700">Dashboard</span>
+            </a>
+
+            {/* Activity Tracker */}
+            <a href="/activity" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+              <div className="w-5 h-5 text-gray-600">
+                <ActivityIcon size={16} />
               </div>
-              <span className="text-gray-600 text-sm font-medium">Activity Tracker</span>
-            </div>
-            <div className="flex items-center space-x-4 p-3">
-              <div className="w-5 h-5 p-0.5">
-                <div className="w-3.5 h-3.5 bg-gray-600 rounded-full" />
-                <div className="w-2.5 h-2 bg-gray-600 rounded-full absolute -top-1 -left-1" />
+              <span className="text-sm font-medium text-gray-700">Activity Tracker</span>
+            </a>
+
+            {/* Waste Scanner */}
+            <a href="/waste-scanner" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+              <div className="w-5 h-5 text-gray-600">
+                <RecycleIcon size={16} />
               </div>
-              <span className="text-gray-600 text-sm font-medium">Waste Scanner</span>
-            </div>
-            <div className="flex items-center space-x-4 p-3 bg-green-100 rounded-lg">
-              <div className="w-5 h-5 p-0.5">
-                <div className="w-3 h-5 bg-gray-600 rounded-full" />
-                <div className="w-3 h-[1px] bg-gray-600 rounded-full -mt-1" />
-                <div className="w-1.5 h-1 bg-gray-600 rounded-full mt-1" />
+              <span className="text-sm font-medium text-gray-700">Waste Scanner</span>
+            </a>
+
+            {/* AI Marketplace - ACTIVE */}
+            <a href="/marketplace" className="flex items-center space-x-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+              <div className="w-5 h-5 text-emerald-600">
+                <MessageCircleIcon size={16} />
               </div>
-              <span className="text-emerald-800 text-sm font-medium">AI Marketplace</span>
-            </div>
-          </div>
-          <div className="absolute bottom-6 left-6 right-6 border-t border-gray-200 pt-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                <div className="w-5 h-5 flex flex-col space-y-0.5">
-                  <div className="w-3 h-[5px] bg-green-500 rounded-full" />
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                </div>
+              <span className="text-sm font-medium text-emerald-800">AI Marketplace</span>
+            </a>
+          </nav>
+
+          {/* User Profile Footer - Matches Dashboard */}
+          <div className="absolute bottom-4 left-4 right-4 border-t border-gray-200 pt-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center">
+                <UserIcon size={16} className="text-emerald-600" />
               </div>
               <div>
-                <div className="text-black text-sm font-medium">Alex Green</div>
-                <div className="text-gray-500 text-xs font-medium">Eco Enthusiast</div>
+                <div className="text-sm font-medium text-gray-800">Alex Green</div>
+                <div className="text-xs text-gray-500">Eco Enthusiast</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 space-y-8">
-          <div className="space-y-4">
-            <h1 className="text-4xl font-medium text-emerald-800">Ai Market Place</h1>
-            <p className="text-3xl text-gray-600 font-normal leading-7 max-w-2xl">
-              Ask Ai for eco friendly product insights & detailed analysis
-            </p>
-          </div>
+        {/* Main Content Area - Using Card Like Dashboard */}
+        <div className="flex-1 space-y-6">
+          <Card className="p-6">
+            <div className="space-y-3">
+              <h1 className="text-3xl font-semibold text-emerald-800">AI Marketplace</h1>
+              <p className="text-xl text-gray-600">
+                Ask AI for eco-friendly product insights & detailed analysis
+              </p>
+            </div>
+          </Card>
 
-          {/* Chat Messages */}
-          <div className="space-y-6 max-h-96 overflow-y-auto">
+          {/* Chat Messages - Card Style */}
+          <Card className="p-6 max-h-96 overflow-y-auto space-y-4">
             {messages.map((msg, index) => (
               <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-xs lg:max-w-md p-4 rounded-lg ${
                   msg.role === 'user' 
-                    ? 'bg-emerald-100 text-emerald-800' 
-                    : 'bg-white text-gray-800 border border-gray-200'
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                    : 'bg-white text-gray-800 border border-gray-200 shadow-sm'
                 }`}>
-                  <p className="text-sm">{msg.content}</p>
+                  <ReactMarkdown className="text-sm prose prose-sm max-w-none">
+                    {msg.content}
+                  </ReactMarkdown>
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white text-gray-500 p-4 rounded-lg border border-gray-200">
-                  <span className="animate-pulse">AI is thinking...</span>
+                <div className="bg-white text-gray-500 p-4 rounded-lg border border-gray-200 shadow-sm">
+                  <span className="animate-pulse">AI is thinking... 🌿</span>
                 </div>
               </div>
             )}
-          </div>
+          </Card>
 
-          {/* Input Area */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg border border-black/10 p-8">
+          {/* Input Area - Card Style */}
+          <Card className="p-6">
             <div className="flex space-x-4 items-end">
               <input
                 type="text"
-                placeholder="Enter your message here...."
-                className="flex-1 bg-gray-500/10 rounded-lg border border-black/40 p-8 h-16 text-gray-500 text-3xl font-normal focus:outline-none placeholder-gray-500"
+                placeholder="Enter your message here..."
+                className="flex-1 bg-gray-50 rounded-lg border border-gray-200 p-4 h-12 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
               />
               <button
                 onClick={handleSend}
-                disabled={isLoading}
-                className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition disabled:opacity-50"
+                disabled={isLoading || !message.trim()}
+                className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center hover:bg-emerald-600 transition disabled:opacity-50"
               >
-                <div className="w-7 h-6 bg-white rounded-md flex items-center justify-center">
-                  <span className="text-green-500 text-lg">➤</span>
-                </div>
+                <MessageCircleIcon size={20} className="text-white" />
               </button>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default MarketplacePage;
