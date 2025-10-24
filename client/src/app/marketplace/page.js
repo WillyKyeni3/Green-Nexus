@@ -235,13 +235,34 @@ const MarketplacePage = () => {
                     className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div 
-                      className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
+                      className={`max-w-2xl px-4 py-3 rounded-lg ${
                         msg.role === 'user' 
                           ? 'bg-primary text-white rounded-br-none' 
                           : 'bg-neutral-gray text-primary-dark rounded-bl-none border border-gray-200'
                       }`}
                     >
-                      <p className="text-sm leading-relaxed">{msg.content}</p>
+                      {msg.role === 'user' ? (
+                        <p className="text-sm leading-relaxed">{msg.content}</p>
+                      ) : (
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap space-y-3">
+                          {msg.content.split('\n\n').map((paragraph, idx) => {
+                            // Check if this paragraph is a section header (all caps)
+                            const isHeader = paragraph.trim() === paragraph.trim().toUpperCase() && 
+                                           paragraph.trim().length > 0 && 
+                                           !paragraph.includes('🌿');
+                            
+                            return (
+                              <div key={idx}>
+                                {isHeader ? (
+                                  <div className="font-bold text-gray-700 mt-2">{paragraph}</div>
+                                ) : (
+                                  <div className="text-gray-700">{paragraph}</div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
