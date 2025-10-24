@@ -1,13 +1,9 @@
 'use client';
 import React, { useState } from 'react';
 import {
-  HomeIcon,
-  ActivityIcon,
-  RecycleIcon,
   MessageCircleIcon,
-  UserIcon,
-  TrendingUpIcon,
-  Leaf,
+  BellIcon,
+  ChevronDownIcon,
 } from 'lucide-react';
 import Card from '../components/common/Card';
 
@@ -48,134 +44,147 @@ const MarketplacePage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header - Exactly like Dashboard */}
-      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="px-4 h-16 flex items-center justify-between">
-          {/* Logo - Green Leaf Icon */}
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-sm">
-              <Leaf size={24} className="text-white fill-white" />
+    <div className="min-h-screen bg-gray-50">
+      {/* TOPBAR - Exact from Dashboard */}
+      <header className="bg-white border-b border-neutral-gray py-3 px-6 flex items-center justify-between sticky top-0 z-50">
+        <div className="flex items-center space-x-4">
+          <img 
+            alt="GreenNexus Logo" 
+            className="h-10 w-10 object-contain rotate-[-55.7deg]" 
+            src="/leaflogo.png"
+          />
+          <h2 className="text-lg font-medium text-gray-700">Welcome back, Alex!</h2>
+        </div>
+        
+        <div className="flex items-center space-x-5">
+          {/* Green Score */}
+          <div className="flex items-center bg-primary-light px-4 py-2 rounded-full">
+            <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center mr-2">
+              <span className="text-xs font-bold text-white">GS</span>
             </div>
-            <span className="text-primary-dark text-lg font-semibold hidden sm:inline">GreenNexus</span>
+            <span className="font-medium text-primary-dark">Green Score: 85</span>
           </div>
           
-          {/* Welcome + Green Score - Same as Dashboard */}
-          <div className="flex items-center space-x-6">
-            <div className="text-gray-700 text-sm font-medium hidden sm:block">Welcome back Alex</div>
-            
-            <div className="bg-primary-light text-primary-dark px-3 sm:px-4 py-2 rounded-full text-sm font-medium flex items-center space-x-2 border border-primary/20">
-              <TrendingUpIcon size={16} className="text-primary flex-shrink-0" />
-              <span className="hidden sm:inline">Green Score: 85</span>
-              <span className="sm:hidden">85</span>
-            </div>
-            
-            {/* Profile - Same as Dashboard */}
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary-light rounded-full flex items-center justify-center">
-                <UserIcon size={16} className="text-primary" />
+          {/* Notifications */}
+          <div className="relative">
+            <button className="relative p-2 rounded-full hover:bg-neutral-gray/30">
+              <BellIcon width={20} height={20} className="text-gray-600" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
+            </button>
+          </div>
+          
+          {/* Profile Dropdown */}
+          <div className="relative">
+            <button className="flex items-center space-x-2 focus:outline-none">
+              <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center">
+                <span className="font-medium text-primary-dark">AG</span>
               </div>
-              <span className="text-sm text-gray-600 hidden sm:inline">AG</span>
-            </div>
+              <ChevronDownIcon width={16} height={16} className="text-gray-600" />
+            </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Main Content Container - Matches Dashboard Layout */}
-      <div className="px-4 flex gap-6">
-        {/* Sidebar - Exactly like Dashboard */}
-        <aside className="w-56 flex-shrink-0">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 sticky top-24">
-            {/* Navigation */}
-            <nav className="p-4 space-y-1">
-              {/* Dashboard */}
+      {/* Main Layout */}
+      <div className="flex">
+        {/* SIDEBAR - Exact icons from Dashboard */}
+        <aside className="w-64 bg-white border-r border-neutral-gray sticky top-16 h-[calc(100vh-64px)]">
+          <ul className="space-y-2 p-4">
+            {/* Dashboard */}
+            <li>
               <a 
-                href="/Dashboard" 
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-primary-light hover:text-primary transition-colors"
+                className="flex items-center p-3 rounded-lg text-gray-600 hover:bg-primary-light/50 transition-colors" 
+                href="/Dashboard"
               >
-                <HomeIcon size={20} className="flex-shrink-0" />
-                <span className="text-base font-medium">Dashboard</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-house mr-3" aria-hidden="true">
+                  <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
+                  <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                </svg>
+                Dashboard
               </a>
+            </li>
 
-              {/* Activity Tracker */}
+            {/* Activity Tracker */}
+            <li>
               <a 
-                href="/activity" 
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-primary-light hover:text-primary transition-colors"
+                className="flex items-center p-3 rounded-lg text-gray-600 hover:bg-primary-light/50 transition-colors" 
+                href="/activity"
               >
-                <ActivityIcon size={20} className="flex-shrink-0" />
-                <span className="text-base font-medium">Activity Tracker</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chart-no-axes-column mr-3" aria-hidden="true">
+                  <path d="M5 21v-6"></path>
+                  <path d="M12 21V3"></path>
+                  <path d="M19 21V9"></path>
+                </svg>
+                Activity Tracker
               </a>
+            </li>
 
-              {/* Waste Scanner */}
+            {/* Waste Scanner */}
+            <li>
               <a 
-                href="/waste-scanner" 
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-primary-light hover:text-primary transition-colors"
+                className="flex items-center p-3 rounded-lg text-gray-600 hover:bg-primary-light/50 transition-colors" 
+                href="/waste-scanner"
               >
-                <RecycleIcon size={20} className="flex-shrink-0" />
-                <span className="text-base font-medium">Waste Scanner</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-leaf mr-3" aria-hidden="true">
+                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
+                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
+                </svg>
+                Waste Scanner
               </a>
+            </li>
 
-              {/* AI Marketplace - ACTIVE */}
+            {/* Marketplace - ACTIVE */}
+            <li>
               <a 
-                href="/marketplace" 
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-primary-light text-primary border border-primary/20"
+                className="flex items-center p-3 rounded-lg bg-primary-light text-primary font-medium" 
+                href="/marketplace"
               >
-                <MessageCircleIcon size={20} className="flex-shrink-0" />
-                <span className="text-base font-medium">AI Marketplace</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shopping-bag mr-3" aria-hidden="true">
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                  <path d="M3.103 6.034h17.794"></path>
+                  <path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"></path>
+                </svg>
+                Marketplace
               </a>
+            </li>
 
-              {/* User Profile */}
+            {/* User Profile */}
+            <li>
               <a 
-                href="/UserProfile" 
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-primary-light hover:text-primary transition-colors"
+                className="flex items-center p-3 rounded-lg text-gray-600 hover:bg-primary-light/50 transition-colors" 
+                href="/UserProfile"
               >
-                <UserIcon size={20} className="flex-shrink-0" />
-                <span className="text-base font-medium">Profile</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user mr-3" aria-hidden="true">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                User Profile
               </a>
-            </nav>
-
-            {/* Divider */}
-            <div className="border-t border-gray-200 mx-4"></div>
-
-            {/* User Profile Footer */}
-            <div className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-primary-light rounded-full flex items-center justify-center flex-shrink-0">
-                  <UserIcon size={16} className="text-primary" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-primary-dark truncate">Alex Green</p>
-                  <p className="text-xs text-gray-600 truncate">Eco Enthusiast</p>
-                </div>
-              </div>
-            </div>
-          </div>
+            </li>
+          </ul>
         </aside>
 
-        {/* Main Content - Matches Dashboard Grid Layout */}
-        <main className="flex-1 min-w-0">
-          <div className="space-y-6">
+        {/* MAIN CONTENT */}
+        <main className="flex-1 p-6 overflow-auto">
+          <div className="max-w-4xl mx-auto space-y-6">
             {/* Title Card */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-2xl font-semibold text-primary-dark">
-                    AI Marketplace
-                  </h1>
-                  <p className="text-gray-600 text-base mt-2">
-                    Chat with AI for eco-friendly product recommendations
-                  </p>
+            <Card>
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center mr-3">
+                  <MessageCircleIcon size={20} className="text-primary" />
                 </div>
-                <div className="bg-primary-light text-primary px-4 py-2 rounded-full text-base font-medium flex items-center space-x-2 border border-primary/20">
-                  <MessageCircleIcon size={18} />
-                  <span>Active</span>
-                </div>
+                <h3 className="text-lg font-medium text-primary-dark">
+                  AI Marketplace
+                </h3>
               </div>
+              <p className="text-gray-600 text-sm">
+                Chat with AI for eco-friendly product recommendations and insights
+              </p>
             </Card>
 
-            {/* Chat Messages Container - Card Style */}
-            <Card className="p-6 max-h-[500px] overflow-y-auto">
-              <div className="space-y-4">
+            {/* Chat Messages Container */}
+            <Card className="max-h-[500px] overflow-y-auto">
+              <div className="space-y-4 p-6">
                 {messages.map((msg, index) => (
                   <div 
                     key={index} 
@@ -188,7 +197,7 @@ const MarketplacePage = () => {
                           : 'bg-neutral-gray text-primary-dark rounded-bl-none border border-gray-200'
                       }`}
                     >
-                      <p className="text-base leading-relaxed">{msg.content}</p>
+                      <p className="text-sm leading-relaxed">{msg.content}</p>
                     </div>
                   </div>
                 ))}
@@ -206,13 +215,13 @@ const MarketplacePage = () => {
               </div>
             </Card>
 
-            {/* Input Area - Card Style */}
+            {/* Input Area */}
             <Card className="p-6">
               <div className="flex gap-3 items-end">
                 <input
                   type="text"
                   placeholder="Ask about sustainable products..."
-                  className="flex-1 bg-white rounded-lg border border-gray-200 px-4 py-3 text-base text-primary-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                  className="flex-1 bg-white rounded-lg border border-gray-200 px-4 py-3 text-sm text-primary-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSend()}
@@ -224,7 +233,7 @@ const MarketplacePage = () => {
                   className="w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                   title="Send message"
                 >
-                  <MessageCircleIcon size={20} />
+                  <MessageCircleIcon size={18} />
                 </button>
               </div>
             </Card>
