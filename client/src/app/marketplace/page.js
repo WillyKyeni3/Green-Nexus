@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
 import {
   HomeIcon,
   ActivityIcon,
@@ -48,148 +47,179 @@ const MarketplacePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header - Matches Dashboard */}
-      <div className="h-16 bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
-          {/* Logo */}
+    <div className="space-y-6">
+      {/* Header - Exactly like Dashboard */}
+      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div className="px-4 h-16 flex items-center justify-between">
+          {/* Logo - Same as Dashboard */}
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-sm">
               <span className="text-white font-bold text-sm">GN</span>
             </div>
-            <span className="text-emerald-800 text-xl font-semibold">GreenNexus</span>
+            <span className="text-primary-dark text-xl font-semibold hidden sm:inline">GreenNexus</span>
           </div>
           
-          {/* Welcome + Green Score */}
+          {/* Welcome + Green Score - Same as Dashboard */}
           <div className="flex items-center space-x-6">
-            <div className="text-gray-700 text-base font-medium">Welcome back Alex</div>
+            <div className="text-gray-700 text-sm sm:text-base font-medium hidden sm:block">Welcome back Alex</div>
             
-            <div className="flex items-center space-x-2 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-200">
-              <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                <TrendingUpIcon size={14} className="text-white" />
-              </div>
-              <span className="text-emerald-800 text-sm font-medium">Green Score: 85</span>
+            <div className="bg-primary-light text-primary-dark px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium flex items-center space-x-2 border border-primary/20">
+              <TrendingUpIcon size={14} className="text-primary flex-shrink-0" />
+              <span className="hidden sm:inline">Green Score: 85</span>
+              <span className="sm:hidden">85</span>
             </div>
             
-            {/* Profile */}
+            {/* Profile - Same as Dashboard */}
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                <UserIcon size={16} className="text-emerald-800" />
+              <div className="w-8 h-8 bg-primary-light rounded-full flex items-center justify-center">
+                <UserIcon size={16} className="text-primary" />
               </div>
-              <span className="text-sm text-gray-600">AG</span>
+              <span className="text-sm text-gray-600 hidden sm:inline">AG</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content - Matches Dashboard Layout */}
-      <div className="max-w-7xl mx-auto px-4 py-6 flex space-x-6">
-        {/* Sidebar - Matches Dashboard Nav Style */}
-        <div className="w-56 bg-white rounded-lg shadow-sm border border-gray-200">
-          <nav className="p-4 space-y-2">
-            {/* Dashboard */}
-            <a href="/dashboard" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
-              <div className="w-5 h-5 text-gray-600">
-                <HomeIcon size={16} />
-              </div>
-              <span className="text-sm font-medium text-gray-700">Dashboard</span>
-            </a>
+      {/* Main Content Container - Matches Dashboard Layout */}
+      <div className="px-4 flex gap-6">
+        {/* Sidebar - Exactly like Dashboard */}
+        <aside className="w-56 flex-shrink-0">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 sticky top-24">
+            {/* Navigation */}
+            <nav className="p-4 space-y-1">
+              {/* Dashboard */}
+              <a 
+                href="/dashboard" 
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-primary-light hover:text-primary transition-colors"
+              >
+                <HomeIcon size={18} className="flex-shrink-0" />
+                <span className="text-sm font-medium">Dashboard</span>
+              </a>
 
-            {/* Activity Tracker */}
-            <a href="/activity" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
-              <div className="w-5 h-5 text-gray-600">
-                <ActivityIcon size={16} />
-              </div>
-              <span className="text-sm font-medium text-gray-700">Activity Tracker</span>
-            </a>
+              {/* Activity Tracker */}
+              <a 
+                href="/activity" 
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-primary-light hover:text-primary transition-colors"
+              >
+                <ActivityIcon size={18} className="flex-shrink-0" />
+                <span className="text-sm font-medium">Activity Tracker</span>
+              </a>
 
-            {/* Waste Scanner */}
-            <a href="/waste-scanner" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
-              <div className="w-5 h-5 text-gray-600">
-                <RecycleIcon size={16} />
-              </div>
-              <span className="text-sm font-medium text-gray-700">Waste Scanner</span>
-            </a>
+              {/* Waste Scanner */}
+              <a 
+                href="/waste-scanner" 
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-primary-light hover:text-primary transition-colors"
+              >
+                <RecycleIcon size={18} className="flex-shrink-0" />
+                <span className="text-sm font-medium">Waste Scanner</span>
+              </a>
 
-            {/* AI Marketplace - ACTIVE */}
-            <a href="/marketplace" className="flex items-center space-x-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-              <div className="w-5 h-5 text-emerald-600">
-                <MessageCircleIcon size={16} />
-              </div>
-              <span className="text-sm font-medium text-emerald-800">AI Marketplace</span>
-            </a>
-          </nav>
+              {/* AI Marketplace - ACTIVE */}
+              <a 
+                href="/marketplace" 
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-primary-light text-primary border border-primary/20 font-medium"
+              >
+                <MessageCircleIcon size={18} className="flex-shrink-0" />
+                <span className="text-sm font-medium">AI Marketplace</span>
+              </a>
+            </nav>
 
-          {/* User Profile Footer - Matches Dashboard */}
-          <div className="absolute bottom-4 left-4 right-4 border-t border-gray-200 pt-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center">
-                <UserIcon size={16} className="text-emerald-600" />
-              </div>
-              <div>
-                <div className="text-sm font-medium text-gray-800">Alex Green</div>
-                <div className="text-xs text-gray-500">Eco Enthusiast</div>
+            {/* Divider */}
+            <div className="border-t border-gray-200 mx-4"></div>
+
+            {/* User Profile Footer */}
+            <div className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-primary-light rounded-full flex items-center justify-center flex-shrink-0">
+                  <UserIcon size={16} className="text-primary" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-primary-dark truncate">Alex Green</p>
+                  <p className="text-xs text-gray-600 truncate">Eco Enthusiast</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </aside>
 
-        {/* Main Content Area - Using Card Like Dashboard */}
-        <div className="flex-1 space-y-6">
-          <Card className="p-6">
-            <div className="space-y-3">
-              <h1 className="text-3xl font-semibold text-emerald-800">AI Marketplace</h1>
-              <p className="text-xl text-gray-600">
-                Ask AI for eco-friendly product insights & detailed analysis
-              </p>
-            </div>
-          </Card>
-
-          {/* Chat Messages - Card Style */}
-          <Card className="p-6 max-h-96 overflow-y-auto space-y-4">
-            {messages.map((msg, index) => (
-              <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-xs lg:max-w-md p-4 rounded-lg ${
-                  msg.role === 'user' 
-                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
-                    : 'bg-white text-gray-800 border border-gray-200 shadow-sm'
-                }`}>
-                  <ReactMarkdown className="text-sm prose prose-sm max-w-none">
-                    {msg.content}
-                  </ReactMarkdown>
+        {/* Main Content - Matches Dashboard Grid Layout */}
+        <main className="flex-1 min-w-0">
+          <div className="space-y-6">
+            {/* Title Card */}
+            <Card className="p-6 border-b-2 border-primary/10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-semibold text-primary-dark">
+                    AI Marketplace
+                  </h1>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Chat with AI for eco-friendly product recommendations
+                  </p>
+                </div>
+                <div className="bg-primary-light text-primary px-4 py-2 rounded-full text-sm font-medium flex items-center space-x-2 border border-primary/20">
+                  <MessageCircleIcon size={16} />
+                  <span>Active</span>
                 </div>
               </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-white text-gray-500 p-4 rounded-lg border border-gray-200 shadow-sm">
-                  <span className="animate-pulse">AI is thinking... 🌿</span>
-                </div>
-              </div>
-            )}
-          </Card>
+            </Card>
 
-          {/* Input Area - Card Style */}
-          <Card className="p-6">
-            <div className="flex space-x-4 items-end">
-              <input
-                type="text"
-                placeholder="Enter your message here..."
-                className="flex-1 bg-gray-50 rounded-lg border border-gray-200 p-4 h-12 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              />
-              <button
-                onClick={handleSend}
-                disabled={isLoading || !message.trim()}
-                className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center hover:bg-emerald-600 transition disabled:opacity-50"
-              >
-                <MessageCircleIcon size={20} className="text-white" />
-              </button>
-            </div>
-          </Card>
-        </div>
+            {/* Chat Messages Container - Card Style */}
+            <Card className="p-6 max-h-[500px] overflow-y-auto">
+              <div className="space-y-4">
+                {messages.map((msg, index) => (
+                  <div 
+                    key={index} 
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div 
+                      className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
+                        msg.role === 'user' 
+                          ? 'bg-primary text-white rounded-br-none' 
+                          : 'bg-neutral-gray text-primary-dark rounded-bl-none border border-gray-200'
+                      }`}
+                    >
+                      <p className="text-sm leading-relaxed">{msg.content}</p>
+                    </div>
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="bg-neutral-gray text-gray-600 px-4 py-3 rounded-lg rounded-bl-none border border-gray-200">
+                      <div className="flex items-center space-x-2">
+                        <span className="animate-pulse">●</span>
+                        <span className="animate-pulse">●</span>
+                        <span className="animate-pulse">●</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {/* Input Area - Card Style */}
+            <Card className="p-6">
+              <div className="flex gap-3 items-end">
+                <input
+                  type="text"
+                  placeholder="Ask about sustainable products..."
+                  className="flex-1 bg-white rounded-lg border border-gray-200 px-4 py-3 text-sm text-primary-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                  disabled={isLoading}
+                />
+                <button
+                  onClick={handleSend}
+                  disabled={isLoading || !message.trim()}
+                  className="w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                  title="Send message"
+                >
+                  <MessageCircleIcon size={18} />
+                </button>
+              </div>
+            </Card>
+          </div>
+        </main>
       </div>
     </div>
   );
