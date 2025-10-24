@@ -1,7 +1,11 @@
-# server/run.py
 import os
 from flask import Flask, jsonify
+from dotenv import load_dotenv
+from flask_cors import CORS
 from app.routes import register_blueprints
+
+# Load .env for OpenAI key
+load_dotenv()
 
 # Get the environment (development, production, etc.)
 config_name = os.getenv('FLASK_CONFIG') or 'development'
@@ -30,7 +34,7 @@ register_blueprints(app)
 if __name__ == '__main__':
     # Run the server
     app.run(
-        host='0.0.0.0',  # Listen on all available interfaces
-        port=5000,       # Port number
-        debug=True       # Enable debug mode (development only!)
+        host='0.0.0.0',
+        port=5000,
+        debug=True
     )
