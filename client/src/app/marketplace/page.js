@@ -7,6 +7,7 @@ import {
   MessageCircleIcon,
   UserIcon,
   TrendingUpIcon,
+  Leaf,
 } from 'lucide-react';
 import Card from '../components/common/Card';
 
@@ -51,20 +52,20 @@ const MarketplacePage = () => {
       {/* Header - Exactly like Dashboard */}
       <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="px-4 h-16 flex items-center justify-between">
-          {/* Logo - Same as Dashboard */}
-          <div className="flex items-center space-x-3">
+          {/* Logo - Green Leaf Icon */}
+          <div className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-sm">GN</span>
+              <Leaf size={24} className="text-white fill-white" />
             </div>
-            <span className="text-primary-dark text-xl font-semibold hidden sm:inline">GreenNexus</span>
+            <span className="text-primary-dark text-lg font-semibold hidden sm:inline">GreenNexus</span>
           </div>
           
           {/* Welcome + Green Score - Same as Dashboard */}
           <div className="flex items-center space-x-6">
-            <div className="text-gray-700 text-sm sm:text-base font-medium hidden sm:block">Welcome back Alex</div>
+            <div className="text-gray-700 text-sm font-medium hidden sm:block">Welcome back Alex</div>
             
-            <div className="bg-primary-light text-primary-dark px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium flex items-center space-x-2 border border-primary/20">
-              <TrendingUpIcon size={14} className="text-primary flex-shrink-0" />
+            <div className="bg-primary-light text-primary-dark px-3 sm:px-4 py-2 rounded-full text-sm font-medium flex items-center space-x-2 border border-primary/20">
+              <TrendingUpIcon size={16} className="text-primary flex-shrink-0" />
               <span className="hidden sm:inline">Green Score: 85</span>
               <span className="sm:hidden">85</span>
             </div>
@@ -89,11 +90,11 @@ const MarketplacePage = () => {
             <nav className="p-4 space-y-1">
               {/* Dashboard */}
               <a 
-                href="/dashboard" 
+                href="/Dashboard" 
                 className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-primary-light hover:text-primary transition-colors"
               >
-                <HomeIcon size={18} className="flex-shrink-0" />
-                <span className="text-sm font-medium">Dashboard</span>
+                <HomeIcon size={20} className="flex-shrink-0" />
+                <span className="text-base font-medium">Dashboard</span>
               </a>
 
               {/* Activity Tracker */}
@@ -101,8 +102,8 @@ const MarketplacePage = () => {
                 href="/activity" 
                 className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-primary-light hover:text-primary transition-colors"
               >
-                <ActivityIcon size={18} className="flex-shrink-0" />
-                <span className="text-sm font-medium">Activity Tracker</span>
+                <ActivityIcon size={20} className="flex-shrink-0" />
+                <span className="text-base font-medium">Activity Tracker</span>
               </a>
 
               {/* Waste Scanner */}
@@ -110,17 +111,26 @@ const MarketplacePage = () => {
                 href="/waste-scanner" 
                 className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-primary-light hover:text-primary transition-colors"
               >
-                <RecycleIcon size={18} className="flex-shrink-0" />
-                <span className="text-sm font-medium">Waste Scanner</span>
+                <RecycleIcon size={20} className="flex-shrink-0" />
+                <span className="text-base font-medium">Waste Scanner</span>
               </a>
 
               {/* AI Marketplace - ACTIVE */}
               <a 
                 href="/marketplace" 
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-primary-light text-primary border border-primary/20 font-medium"
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-primary-light text-primary border border-primary/20"
               >
-                <MessageCircleIcon size={18} className="flex-shrink-0" />
-                <span className="text-sm font-medium">AI Marketplace</span>
+                <MessageCircleIcon size={20} className="flex-shrink-0" />
+                <span className="text-base font-medium">AI Marketplace</span>
+              </a>
+
+              {/* User Profile */}
+              <a 
+                href="/UserProfile" 
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-primary-light hover:text-primary transition-colors"
+              >
+                <UserIcon size={20} className="flex-shrink-0" />
+                <span className="text-base font-medium">Profile</span>
               </a>
             </nav>
 
@@ -146,18 +156,18 @@ const MarketplacePage = () => {
         <main className="flex-1 min-w-0">
           <div className="space-y-6">
             {/* Title Card */}
-            <Card className="p-6 border-b-2 border-primary/10">
+            <Card className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-2xl font-semibold text-primary-dark">
                     AI Marketplace
                   </h1>
-                  <p className="text-gray-600 text-sm mt-1">
+                  <p className="text-gray-600 text-base mt-2">
                     Chat with AI for eco-friendly product recommendations
                   </p>
                 </div>
-                <div className="bg-primary-light text-primary px-4 py-2 rounded-full text-sm font-medium flex items-center space-x-2 border border-primary/20">
-                  <MessageCircleIcon size={16} />
+                <div className="bg-primary-light text-primary px-4 py-2 rounded-full text-base font-medium flex items-center space-x-2 border border-primary/20">
+                  <MessageCircleIcon size={18} />
                   <span>Active</span>
                 </div>
               </div>
@@ -178,7 +188,7 @@ const MarketplacePage = () => {
                           : 'bg-neutral-gray text-primary-dark rounded-bl-none border border-gray-200'
                       }`}
                     >
-                      <p className="text-sm leading-relaxed">{msg.content}</p>
+                      <p className="text-base leading-relaxed">{msg.content}</p>
                     </div>
                   </div>
                 ))}
@@ -202,7 +212,7 @@ const MarketplacePage = () => {
                 <input
                   type="text"
                   placeholder="Ask about sustainable products..."
-                  className="flex-1 bg-white rounded-lg border border-gray-200 px-4 py-3 text-sm text-primary-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                  className="flex-1 bg-white rounded-lg border border-gray-200 px-4 py-3 text-base text-primary-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSend()}
@@ -214,7 +224,7 @@ const MarketplacePage = () => {
                   className="w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                   title="Send message"
                 >
-                  <MessageCircleIcon size={18} />
+                  <MessageCircleIcon size={20} />
                 </button>
               </div>
             </Card>
