@@ -1,6 +1,7 @@
 import os
 from flask import Flask, jsonify
 from dotenv import load_dotenv
+from flask_cors import CORS
 from app.routes import register_blueprints
 
 # Load .env for OpenAI key
