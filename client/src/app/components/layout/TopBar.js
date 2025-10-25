@@ -65,19 +65,14 @@ const TopBar = () => {
           {showProfile && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 border border-neutral-gray">
               <Link
-                href="#profile"
+                href="/UserProfile"
                 className="block px-4 py-2 text-sm hover:bg-primary-light/30"
               >
                 Profile
               </Link>
+             
               <Link
-                href="#settings"
-                className="block px-4 py-2 text-sm hover:bg-primary-light/30"
-              >
-                Settings
-              </Link>
-              <Link
-                href="/login"
+                href="/"
                 className="block px-4 py-2 text-sm hover:bg-primary-light/30"
               >
                 Logout
