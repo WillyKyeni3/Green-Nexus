@@ -1,7 +1,8 @@
+'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LeafIcon, UserIcon, LockIcon, MailIcon } from 'lucide-react';
-import Button from '../../components/common/Button';
+import Button from '../components/common/Button';
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
