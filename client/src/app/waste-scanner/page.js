@@ -83,3 +83,30 @@ const WasteScannerPage = () => {
     }
     };
 };
+
+
+    return (
+        <div>
+        <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-primary-dark mb-2">
+          Waste Scanner
+        </h1>
+        <p className="text-gray-600">
+          Upload a photo of your waste item to get recycling information and
+          disposal tips.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <div className="mb-4">
+            <h3 className="text-lg font-medium text-primary-dark">
+              Upload Image
+            </h3>
+            <p className="text-sm text-gray-600">
+              Take a clear photo of the item you want to analyze.
+            </p>
+          </div>
+
+        </div>
+    );
