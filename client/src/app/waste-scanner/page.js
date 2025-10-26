@@ -55,6 +55,31 @@ const WasteScannerPage = () => {
     reader.readAsDataURL(file);
   };
 
+  const handleAnalyze = () => {
+    if (!image) return;
+    setIsAnalyzing(true);
+    // Simulate analysis with a timeout
+    setTimeout(() => {
+      // Mock results - in a real app, this would come from an API
+      setResults({
+        recyclable: true,
+        materialType: 'Plastic (PET)',
+        confidence: 0.92,
+        tips: [
+          'Rinse container before recycling',
+          'Remove cap and place in separate recycling bin',
+          'Check local guidelines for PET recycling',
+        ],
+      });
+      setIsAnalyzing(false);
+    }, 2000);
+  };
 
-
+  const handleReset = () => {
+    setImage(null);
+    setResults(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    };
 };
