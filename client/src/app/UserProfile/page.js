@@ -143,7 +143,7 @@ export default function EditProfile() {
   };
 
   const handleBackToDashboard = () => {
-    window.location.href = '/dashboard';
+    window.location.href = '/Dashboard';
   };
 
   const handleSignOut = () => {
