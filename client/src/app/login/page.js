@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LeafIcon, UserIcon, LockIcon, MailIcon } from 'lucide-react';
+import { LeafyGreenIcon, UserIcon, LockIcon, MailIcon} from 'lucide-react';
 import Button from '../components/common/Button';
 
 const LoginPage = () => {
@@ -28,7 +28,7 @@ const LoginPage = () => {
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="relative z-20 text-white text-center max-w-md px-6">
-          <LeafIcon size={48} className="mx-auto mb-4" />
+        < LeafyGreenIcon size={48} className="mx-auto mb-4" />
           <h1 className="text-4xl font-bold mb-4">GreenNexus</h1>
           <p className="text-lg">
             Track, reduce, and offset your carbon footprint with our all-in-one
@@ -42,7 +42,7 @@ const LoginPage = () => {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-2">
-              <LeafIcon size={32} className="text-primary mr-2" />
+              <LeafyGreenIcon size={32} className="text-primary mr-2" />
               <h1 className="text-3xl font-bold text-primary-dark">
                 GreenNexus
               </h1>
@@ -158,7 +158,7 @@ const LoginPage = () => {
           </div>
 
           <div className="mt-6 text-center text-sm text-gray-600">
-            By continuing, you agree to GreenNexus's{' '}
+            By continuing, you agree to GreenNexus&apos;s{' '}
             <a href="#terms" className="text-primary hover:text-primary-dark">
               Terms of Service
             </a>{' '}
