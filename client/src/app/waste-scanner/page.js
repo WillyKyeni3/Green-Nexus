@@ -40,5 +40,21 @@ const WasteScannerPage = () => {
     }
   };
 
+  const handleFile = (file) => {
+    if (!file.type.match('image.*')) {
+      alert('Please upload an image file');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        setImage(e.target.result);
+        setResults(null);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+
 
 };
