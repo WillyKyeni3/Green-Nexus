@@ -14,7 +14,7 @@ const handleBackTouserprofile = () => {
     window.location.href = '/';
   }
   return (
-    <header className="bg-white border-b border-neutral-gray py-3 px-6 flex items-center justify-between">
+    <header className="bg-white border-b border-neutral-gray py-5 px-6 flex items-center justify-between">
       <div>
         <h2 className="text-lg font-medium text-gray-700">
           Welcome back, Alex!

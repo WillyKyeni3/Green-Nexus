@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   HomeIcon,
+  LeafyGreenIcon,
   BarChart2Icon,
-  LeafIcon,
+  ScanQrCodeIcon,
   ShoppingBagIcon,
   UserIcon,
 } from 'lucide-react';
@@ -29,13 +30,8 @@ const handleBackTomarketplace = () => {
     <div className="w-64 bg-white shadow-lg flex flex-col h-full">
       <div className="p-5 border-b border-neutral-gray">
         <h1 className="text-2xl font-bold text-primary-dark flex items-center">
-          {/* <LeafIcon className="mr-2" size={24} /> */}
-           <img
-              src="/leaflogo.png"
-              alt="GreenNexus Logo"
-              className="h-10 w-10 object-contain rotate-[-55.7deg] "
-              
-            />
+          <LeafyGreenIcon className="mr-2" size={20} />
+           
           GreenNexus
         </h1>
       </div>
@@ -43,7 +39,7 @@ const handleBackTomarketplace = () => {
         <ul className="space-y-2">
           <li>
             <Link
-              href="/"
+              href="/Dashboard"
               className={`flex items-center p-3 rounded-lg ${
                 pathname === '/' ? 'bg-primary-light text-primary-dark font-medium' : 'text-gray-600 hover:bg-primary-light/50'
               }`}
@@ -72,7 +68,7 @@ const handleBackTomarketplace = () => {
                 isActive('/waste-scanner') ? 'bg-primary-light text-primary-dark font-medium' : 'text-gray-600 hover:bg-primary-light/50'
               }`}
             >
-              <LeafIcon className="mr-3" size={20} />
+              <ScanQrCodeIcon className="mr-3" size={20} />
               Waste Scanner
             </Link>
           </li>
