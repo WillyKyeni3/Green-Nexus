@@ -35,7 +35,7 @@ const Sidebar = () => {
         <ul className="space-y-2">
           <li>
             <Link
-              href="/"
+              href="/Dashboard"
               className={`flex items-center p-3 rounded-lg ${
                 pathname === '/' ? 'bg-primary-light text-primary-dark font-medium' : 'text-gray-600 hover:bg-primary-light/50'
               }`}
