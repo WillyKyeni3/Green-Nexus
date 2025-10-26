@@ -54,26 +54,23 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-soft-beige flex flex-col">
       {/* Navigation */}
-      <header className="w-full py-4 px-6 md:px-12 flex items-center justify-between">
+      <header className="w-full py-4 px-6 md:px-12 flex items-center justify-between bg-white shadow-sm">
         <div className="flex items-center">
           <img
             src="/Logo.ico"
             alt="GreenNexus Logo"
             className="h-12 w-12 object-contain"
           />
-          {/* <span className="ml-2 text-xl font-bold text-primary-dark">
-            GreenNexus
-          </span> */}
         </div>
         <div className="flex items-center space-x-4">
           <Link
             href="/login"
-            className="text-primary-dark hover:text-primary font-medium"
+            className="text-gray-700 hover:text-primary font-medium"
           >
             Login
           </Link>
           <Link href="/login">
-            <Button variant="primary" size="sm">
+            <Button variant="primary" size="sm" className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg">
               Sign Up
             </Button>
           </Link>
@@ -82,47 +79,58 @@ const LandingPage = () => {
 
       {/* Hero Section */}
       <main className="flex-1">
-        <section className="py-12 md:py-20 px-6 md:px-12 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-                Embrace <span className="text-primary">Sustainable</span>
+        <section className="py-16 md:py-24 px-6 md:px-12 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <div className="space-y-6">
+              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
+                Embrace <span className="text-green-500">Sustainable</span>
               </h1>
-              <p className="mt-4 text-lg text-gray-700">
+              <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
                 Explore eco-friendly products, track your impact and join
                 challenges to make a difference for the planet
               </p>
-              <div className="mt-8">
+              <div className="pt-4">
                 <Link href="/login">
-                  <Button className="flex items-center">
-                    Get Started <ArrowRightIcon className="ml-2 h-4 w-4" />
-                  </Button>
+                  <button className="bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-4 rounded-lg flex items-center gap-2 transition-colors">
+                    Get Started <ArrowRightIcon className="h-5 w-5" />
+                  </button>
                 </Link>
               </div>
             </div>
+
+            {/* Right Content - Image with Metrics */}
             <div className="relative">
               <img
                 src="/heroimage.jpeg"
                 alt="Sustainability metrics"
-                className="w-full h-auto rounded-lg"
+                className="w-full h-auto rounded-2xl shadow-2xl"
               />
-              {/* Metrics overlays - these position the metrics cards as shown in the image */}
-              <div className="absolute top-8 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-md">
-                <div className="text-2xl font-bold text-primary">85%</div>
-                <div className="text-xs text-gray-700">
-                  Waste diversion rate
+              
+              {/* Metric Card 1 - Top Left */}
+              <div className="absolute top-4 left-4 bg-green-100/95 backdrop-blur-sm rounded-xl p-4 shadow-lg w-48">
+                <div className="text-3xl font-bold text-gray-900 mb-1">85%</div>
+                <div className="text-sm text-gray-700 mb-3">Waste diversion rate</div>
+                <div className="w-full bg-white/50 rounded-full h-2">
+                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '85%' }}></div>
                 </div>
               </div>
-              <div className="absolute top-1/3 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-md">
-                <div className="text-2xl font-bold text-primary">62%</div>
-                <div className="text-xs text-gray-700">
-                  Sustainable transport goal
+
+              {/* Metric Card 2 - Middle Right */}
+              <div className="absolute top-1/3 right-4 bg-green-100/95 backdrop-blur-sm rounded-xl p-4 shadow-lg w-48">
+                <div className="text-3xl font-bold text-gray-900 mb-1">62%</div>
+                <div className="text-sm text-gray-700 mb-3">Sustainable transport goal</div>
+                <div className="w-full bg-white/50 rounded-full h-2">
+                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '62%' }}></div>
                 </div>
               </div>
-              <div className="absolute top-2/3 left-8 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-md">
-                <div className="text-2xl font-bold text-primary">78%</div>
-                <div className="text-xs text-gray-700">
-                  Monthly carbon target
+
+              {/* Metric Card 3 - Bottom Left */}
+              <div className="absolute bottom-8 left-4 bg-green-100/95 backdrop-blur-sm rounded-xl p-4 shadow-lg w-48">
+                <div className="text-3xl font-bold text-gray-900 mb-1">78%</div>
+                <div className="text-sm text-gray-700 mb-3">Monthly carbon target</div>
+                <div className="w-full bg-white/50 rounded-full h-2">
+                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '78%' }}></div>
                 </div>
               </div>
             </div>
@@ -130,142 +138,63 @@ const LandingPage = () => {
         </section>
 
         {/* What We Do Section */}
-        <section className="py-12 px-6 md:px-12 bg-white">
+        <section className="py-16 px-6 md:px-12 bg-soft-beige">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            <h2 className="text-4xl font-bold text-center text-gray-900 mb-16">
               What We Do
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Feature 1 */}
-              <div className="bg-soft-beige rounded-lg p-6 text-center">
-                <div className="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-primary"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="3"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M20.188 10.9343C20.5762 11.4056 20.7703 11.6412 20.7703 12C20.7703 12.3588 20.5762 12.5944 20.188 13.0657C18.7679 14.7899 15.6357 18 12 18C8.36427 18 5.23206 14.7899 3.81197 13.0657C3.42381 12.5944 3.22973 12.3588 3.22973 12C3.22973 11.6412 3.42381 11.4056 3.81197 10.9343C5.23206 9.21014 8.36427 6 12 6C15.6357 6 18.7679 9.21014 20.188 10.9343Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                  </svg>
+              {/* Feature 1 - Activity Tracking */}
+              <div className="bg-white rounded-2xl p-8 text-center shadow-md hover:shadow-lg transition-shadow">
+                {/* Icon Container - ADD YOUR ICON PATH HERE */}
+                <div className="flex justify-center mb-6">
+                  <img
+                    src="/eye.ico"
+                    alt="Activity Tracking"
+                    className="h-16 w-16 object-contain"
+                  />
                 </div>
-                <h3 className="text-xl font-semibold text-primary-dark mb-2">
-                  Track Impact
+                <h3 className="text-xl font-semibold text-green-600 mb-4">
+                  Activity Tracking
                 </h3>
-                <p className="text-gray-600">
-                  Monitor your carbon footprint and see how your actions affect
-                  the environment
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  Users log activities e.g transport & purchases for carbon footprint calculations
                 </p>
               </div>
 
-              {/* Feature 2 */}
-              <div className="bg-soft-beige rounded-lg p-6 text-center">
-                <div className="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-primary"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M21 10C21 14.9706 16.9706 19 12 19C7.02944 19 3 14.9706 3 10C3 5.02944 7.02944 1 12 1C16.9706 1 21 5.02944 21 10Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M12 19V23"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M17 21H7"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M12 7L9.5 10.5"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M12 7L14.5 9.5"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M12 7V13"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
+              {/* Feature 2 - Waste Analysis */}
+              <div className="bg-white rounded-2xl p-8 text-center shadow-md hover:shadow-lg transition-shadow">
+                {/* Icon Container - ADD YOUR ICON PATH HERE */}
+                <div className="flex justify-center mb-6">
+                  <img
+                    src="/recycle.ico"
+                    alt="Waste Analysis"
+                    className="h-16 w-16 object-contain"
+                  />
                 </div>
-                <h3 className="text-xl font-semibold text-primary-dark mb-2">
-                  Reduce Waste
+                <h3 className="text-xl font-semibold text-green-600 mb-4">
+                  Waste Analysis
                 </h3>
-                <p className="text-gray-600">
-                  Learn how to recycle properly and minimize waste in your daily
-                  life
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  upload image for recycling guidance whether it can be recycled or not.
                 </p>
               </div>
 
-              {/* Feature 3 */}
-              <div className="bg-soft-beige rounded-lg p-6 text-center">
-                <div className="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-primary"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M3.5 20.5L4.5 16.5H19.5L20.5 20.5H3.5Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M6 16.5V3.5C6 3.5 9 2 12 2C15 2 18 3.5 18 3.5V16.5"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M12 6.5V12.5"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M15 9.5H9"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
+              {/* Feature 3 - Marketplace */}
+              <div className="bg-white rounded-2xl p-8 text-center shadow-md hover:shadow-lg transition-shadow">
+                {/* Icon Container - ADD YOUR ICON PATH HERE */}
+                <div className="flex justify-center mb-6">
+                  <img
+                    src="/marketplace.ico"
+                    alt="Marketplace"
+                    className="h-16 w-16 object-contain"
+                  />
                 </div>
-                <h3 className="text-xl font-semibold text-primary-dark mb-2">
-                  Eco Shopping
+                <h3 className="text-xl font-semibold text-green-600 mb-4">
+                  Marketplace
                 </h3>
-                <p className="text-gray-600">
-                  Discover sustainable products that are better for you and the
-                  environment
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  Browse eco friendly products with Ai delivering nudge.
                 </p>
               </div>
             </div>
@@ -277,13 +206,11 @@ const LandingPage = () => {
       <footer className="bg-primary-dark text-white py-8 px-6 md:px-12">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0">
-            {/* <LeafIcon className="h-6 w-6" /> */}
             <img
               src="/leaflogo.png"
               alt="GreenNexus Logo"
               className="h-12 w-12 gap-20"
             />
-
             <span className="ml-2 font-bold">GreenNexus</span>
           </div>
           <div className="text-sm">
