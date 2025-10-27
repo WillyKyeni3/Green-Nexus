@@ -34,6 +34,14 @@ def create_app(config_name='development'): # You can add different config names 
         }
     })
 
+    # Create database tables
+    with app.app_context():
+        try:
+            db.create_all()
+            print("✅ Database tables initialized")
+        except Exception as e:
+            print(f"⚠️  Database initialization error: {e}")
+
     print("\n🚀 Registering API Blueprints...")
     
     # Register blueprints (routes)
@@ -43,6 +51,8 @@ def create_app(config_name='development'): # You can add different config names 
         print("✅ Marketplace API registered at /api/chat")
     except ImportError as e:
         print(f"⚠️  Marketplace blueprint not found: {e}")
+    except Exception as e:
+        print(f"❌ Error registering Marketplace blueprint: {e}")
     
     try:
         from app.routes.auth import auth_bp
@@ -50,6 +60,8 @@ def create_app(config_name='development'): # You can add different config names 
         print("✅ Auth API registered at /api/auth")
     except ImportError:
         print("⚠️  Auth blueprint not configured yet")
+    except Exception as e:
+        print(f"❌ Error registering Auth blueprint: {e}")
     
     try:
         from app.routes.activities import activities_bp
@@ -57,6 +69,8 @@ def create_app(config_name='development'): # You can add different config names 
         print("✅ Activities API registered at /api/activities")
     except ImportError:
         print("⚠️  Activities blueprint not configured yet")
+    except Exception as e:
+        print(f"❌ Error registering Activities blueprint: {e}")
     
     try:
         from app.routes.waste_scanner import waste_scanner_bp
@@ -64,12 +78,27 @@ def create_app(config_name='development'): # You can add different config names 
         print("✅ Waste Scanner API registered at /api/waste-scanner")
     except ImportError:
         print("⚠️  Waste Scanner blueprint not configured yet")
+    except Exception as e:
+        print(f"❌ Error registering Waste Scanner blueprint: {e}")
     
     print("✨ Blueprint registration complete!\n")
 
     # Placeholder welcome route
     @app.route('/')
     def home():
-        return {"message": "Welcome to the Green-Nexus API!"}, 200
+        return {
+            "message": "Welcome to the Green-Nexus API! 🌿",
+            "version": "1.0.0",
+            "status": "Running"
+        }, 200
+
+    # Health check endpoint
+    @app.route('/health', methods=['GET'])
+    def health():
+        return {
+            "status": "healthy",
+            "message": "Green-Nexus API is running",
+            "database": "connected"
+        }, 200
 
     return app
