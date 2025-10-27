@@ -38,7 +38,43 @@ const DashboardPage = () => {
   const [greenScore, setGreenScore] = useState(0);
   const [monthlyData, setMonthlyData] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
+// ADD THIS ENTIRE FUNCTION:
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        setLoading(true);
+        
+        // REPLACE WITH YOUR ACTUAL API ENDPOINT
+        const response = await fetch('/api/activities'); 
+        const data = await response.json();
+        
+        if (data.activities) {
+          setActivities(data.activities);
+          
+          // Calculate Green Score
+          const score = calculateGreenScore(data.activities);
+          setGreenScore(score);
+          
+          // Get monthly carbon data for chart
+          const monthly = calculateMonthlyData(data.activities);
+          setMonthlyData(monthly);
+          
+          // Get recent activities (last 5)
+          const recent = data.activities
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 5);
+          setRecentActivities(recent);
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching activities:', error);
+        setLoading(false);
+      }
+    };
 
+    fetchActivities();
+  }, []);
   const chartData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
