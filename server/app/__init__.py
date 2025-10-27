@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from config import Config # Assuming you will create this file for configuration
 
+
 # Initialize extensions
 db = SQLAlchemy()
 jwt = JWTManager()
@@ -66,6 +67,11 @@ def create_app(config_name='development'): # You can add different config names 
         print("⚠️  Waste Scanner blueprint not configured yet")
     
     print("✨ Blueprint registration complete!\n")
+
+
+    # Import and register blueprints here after creating them
+    from app.routes.auth import auth_bp
+    app.register_blueprint(auth_bp) # Register the auth blueprint
 
     # Placeholder welcome route
     @app.route('/')
