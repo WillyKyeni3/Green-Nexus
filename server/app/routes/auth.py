@@ -24,3 +24,23 @@ def register():
     # Call the service function
     response, status_code = register_user(name, email, password)
     return jsonify(response), status_code
+
+
+@auth_bp.route('/login', methods=['POST'])
+def login():
+    """
+    Endpoint for user login.
+    Expects JSON: { "email": "...", "password": "..." }
+    Returns JSON: { "message": "...", "access_token": "...", "user": {...} } on success
+    """
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "Request body must be JSON."}), 400
+
+    email = data.get('email')
+    password = data.get('password')
+
+    # Call the service function
+    response, status_code = login_user(email, password)
+    return jsonify(response), status_code
