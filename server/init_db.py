@@ -2,6 +2,8 @@
 import os
 from app import create_app, db
 
+from app.models import user
+
 app = create_app() # Create an app instance using your factory
 
 with app.app_context(): # Push an application context
