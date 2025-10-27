@@ -49,7 +49,7 @@ def create_app(config_name='development'): # You can add different config names 
     
     try:
         from app.routes.auth import auth_bp
-        app.register_blueprint(auth_bp, url_prefix='/api/auth')
+        app.register_blueprint(auth_bp)
         print("✅ Auth API registered at /api/auth")
     except ImportError:
         print("⚠️  Auth blueprint not configured yet")
