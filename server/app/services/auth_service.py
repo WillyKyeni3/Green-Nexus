@@ -44,3 +44,33 @@ def register_user(name, email, password):
         db.session.rollback()
         current_app.logger.error(f"Registration error: {str(e)}")
         return {"error": "An error occurred during registration. Please try again."}, 500
+    
+
+def login_user(email, password):
+    """
+    Handles user login logic.
+    """
+    # 1. Validate input
+    if not email or not password:
+        return {"error": "Email and password are required."}, 400
+
+    # 2. Find user by email
+    user = User.query.filter_by(email=email).first()
+
+    # 3. Check if user exists and password is correct
+    if not user or not user.check_password(password):
+        return {"error": "Invalid email or password."}, 401 # Unauthorized
+
+    # 4. Generate JWT token
+    access_token = create_access_token(identity=user.id) # Use user ID as identity
+
+    # 5. Return success message and token
+    return {
+        "message": "Login successful.",
+        "access_token": access_token,
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email
+        }
+    }, 200
