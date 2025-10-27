@@ -16,12 +16,26 @@ const Sidebar = () => {
   const isActive = (path) => {
     return pathname === path || pathname.startsWith(path + '/');
   };
-
+const handleBackToActivity = () => {
+    window.location.href = '/activity';
+  };
+const handleBackTomarketplace = () => {
+    window.location.href = '/marketplace'; 
+  };
+  const handleBackwastescanner = () => {
+    window.location.href = '/waste-scanner';
+  };
   return (
     <div className="w-64 bg-white shadow-lg flex flex-col h-full">
       <div className="p-5 border-b border-neutral-gray">
         <h1 className="text-2xl font-bold text-primary-dark flex items-center">
-          <LeafIcon className="mr-2" size={24} />
+          {/* <LeafIcon className="mr-2" size={24} /> */}
+           <img
+              src="/leaflogo.png"
+              alt="GreenNexus Logo"
+              className="h-10 w-10 object-contain rotate-[-55.7deg] "
+              
+            />
           GreenNexus
         </h1>
       </div>
@@ -40,6 +54,7 @@ const Sidebar = () => {
           </li>
           <li>
             <Link
+            onClick={handleBackToActivity}
               href="/activity"
               className={`flex items-center p-3 rounded-lg ${
                 isActive('/activity') ? 'bg-primary-light text-primary-dark font-medium' : 'text-gray-600 hover:bg-primary-light/50'
@@ -51,6 +66,7 @@ const Sidebar = () => {
           </li>
           <li>
             <Link
+            onClick={handleBackwastescanner}
               href="/waste-scanner"
               className={`flex items-center p-3 rounded-lg ${
                 isActive('/waste-scanner') ? 'bg-primary-light text-primary-dark font-medium' : 'text-gray-600 hover:bg-primary-light/50'
@@ -62,6 +78,7 @@ const Sidebar = () => {
           </li>
           <li>
             <Link
+            onClick={handleBackTomarketplace}
               href="/marketplace"
               className={`flex items-center p-3 rounded-lg ${
                 isActive('/marketplace') ? 'bg-primary-light text-primary-dark font-medium' : 'text-gray-600 hover:bg-primary-light/50'

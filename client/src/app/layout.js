@@ -1,8 +1,8 @@
-// client/src/app/layout.js
-import './globals.css';
-import { Inter } from 'next/font/google';
 
-const inter = Inter({ subsets: ['latin'] });
+import './globals.css';
+import { Jost } from 'next/font/google';
+
+const jost = Jost({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'GreenNexus',
@@ -12,8 +12,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body suppressHydrationWarning={true} className={inter.className}>
+      <body suppressHydrationWarning={true} className={jost.className}>
         {children}
+        
       </body>
     </html>
   );

@@ -7,7 +7,12 @@ const TopBar = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const greenScore = 85;
-
+const handleBackTouserprofile = () => {
+    window.location.href = '/UserProfile';
+  };
+  const handleBackTologout = () => {
+    window.location.href = '/';
+  }
   return (
     <header className="bg-white border-b border-neutral-gray py-3 px-6 flex items-center justify-between">
       <div>
@@ -65,19 +70,16 @@ const TopBar = () => {
           {showProfile && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 border border-neutral-gray">
               <Link
-                href="#profile"
+              onClick={handleBackTouserprofile}
+                href="/UserProfile"
                 className="block px-4 py-2 text-sm hover:bg-primary-light/30"
               >
                 Profile
               </Link>
+             
               <Link
-                href="#settings"
-                className="block px-4 py-2 text-sm hover:bg-primary-light/30"
-              >
-                Settings
-              </Link>
-              <Link
-                href="/login"
+              onClick={handleBackTologout}
+                href="/"
                 className="block px-4 py-2 text-sm hover:bg-primary-light/30"
               >
                 Logout
