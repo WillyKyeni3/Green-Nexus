@@ -33,6 +33,12 @@ ChartJS.register(
 );
 
 const DashboardPage = () => {
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [greenScore, setGreenScore] = useState(0);
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([]);
+
   const chartData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
