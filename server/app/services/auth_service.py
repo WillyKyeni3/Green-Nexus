@@ -1,3 +1,4 @@
+# server/app/services/auth_service.py
 from flask import current_app
 from app.models.user import User # Import the User model
 from app import db # Import the db instance from the app package
@@ -8,7 +9,6 @@ def validate_email(email):
     """Simple email validation using regex."""
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
-
 
 def register_user(name, email, password):
     """
@@ -38,13 +38,27 @@ def register_user(name, email, password):
     try:
         # 5. Commit the transaction
         db.session.commit()
-        return {"message": "User registered successfully."}, 201
+        
+        # 6. Generate JWT token for the new user
+        access_token = create_access_token(identity=new_user.id) # Use user ID as identity
+        
+        # 7. Return success message, token, and user data
+        return {
+            "message": "User registered successfully.",
+            "access_token": access_token,
+            "user": {
+                "id": new_user.id,
+                "name": new_user.name,
+                "email": new_user.email
+            }
+        }, 201 # 201 Created
+        
     except Exception as e:
-        # 6. Rollback in case of error
+        # 8. Rollback in case of error
         db.session.rollback()
         current_app.logger.error(f"Registration error: {str(e)}")
         return {"error": "An error occurred during registration. Please try again."}, 500
-    
+
 
 def login_user(email, password):
     """

@@ -5,6 +5,15 @@ import { useRouter } from 'next/navigation'; // For Next.js App Router
 // Create the context
 const AuthContext = createContext();
 
+// Initial state for the reducer
+const initialState = {
+  user: null,
+  token: null, // Initialize as null on both server and client
+  loading: false,
+  error: null,
+  isClient: false, // Add a state to track if we're on the client
+};
+
 // Reducer for more complex state management (optional, useState works too)
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -18,6 +27,8 @@ const authReducer = (state, action) => {
       return { ...state, user: null, token: null, error: null };
     case 'SET_USER_FROM_STORAGE':
       return { ...state, user: action.payload.user, token: action.payload.token };
+    case 'SET_IS_CLIENT':
+      return { ...state, isClient: action.payload };
     case 'CLEAR_ERROR':
       return { ...state, error: null };
     default:
@@ -27,25 +38,23 @@ const authReducer = (state, action) => {
 
 // AuthProvider component
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, {
-    user: null,
-    token: localStorage.getItem('access_token'), // Initialize token from storage
-    loading: false,
-    error: null,
-  });
+  // Use the reducer with the initial state and the main reducer function
+  const [state, dispatch] = useReducer(authReducer, initialState);
 
   const router = useRouter();
 
-  // Load user and token from localStorage on initial load
+  // Load user and token from localStorage ONLY on the client side
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    const user = localStorage.getItem('user'); // Assuming you also store user info
+    // Mark that we are now on the client
+    dispatch({ type: 'SET_IS_CLIENT', payload: true });
 
-    if (token && user) {
+    const token = localStorage.getItem('access_token');
+    const user = localStorage.getItem('user'); // This might be null initially
+
+    // FIX: Check if 'user' is not null before parsing
+    if (token && user) { // Both token and user must exist
       try {
-        // Parse user data from localStorage
         const parsedUser = JSON.parse(user);
-        // Dispatch action to set user and token in state
         dispatch({ type: 'SET_USER_FROM_STORAGE', payload: { token, user: parsedUser } });
       } catch (e) {
         console.error('Error parsing user data from localStorage:', e);
@@ -56,12 +65,20 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Function to login
+  // Destructure individual state values from the state object returned by useReducer
+  const { user, token, loading, error, isClient } = state;
+
   const login = async (email, password) => {
+    if (!isClient) {
+      console.error("Login attempted before client-side initialization");
+      return;
+    }
+
     dispatch({ type: 'LOGIN_START' });
 
     try {
-      const response = await fetch('/api/auth/login', { // Use your actual backend URL if different
+      // CHANGE THIS: Use the full URL to your Flask backend
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,32 +86,38 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data = await response.json(); // Attempt to parse JSON
 
       if (response.ok) {
-        // Success: Store token and user in localStorage and update state
         const { access_token, user } = data;
         localStorage.setItem('access_token', access_token);
-        localStorage.setItem('user', JSON.stringify(user)); // Store user info too
+        localStorage.setItem('user', JSON.stringify(user));
 
         dispatch({ type: 'LOGIN_SUCCESS', payload: { token: access_token, user } });
-        router.push('/Dashboard'); // Redirect to dashboard
+        router.push('/Dashboard'); // Navigate to dashboard
       } else {
-        // Failure: Update state with error
+        // Server responded with an error status (e.g., 400, 401, 500)
+        // data should contain the error message from your backend
         dispatch({ type: 'LOGIN_FAILURE', payload: data.error || 'Login failed' });
       }
     } catch (error) {
       console.error('Login error:', error);
+      // This handles network errors (e.g., server down, fetch failed)
       dispatch({ type: 'LOGIN_FAILURE', payload: 'Network error or server unavailable' });
     }
   };
 
-  // Function to register (similar to login)
   const register = async (name, email, password) => {
+    if (!isClient) {
+      console.error("Register attempted before client-side initialization");
+      return;
+    }
+
     dispatch({ type: 'LOGIN_START' }); // Reuse loading state
 
     try {
-      const response = await fetch('/api/auth/register', { // Use your actual backend URL if different
+      // CHANGE THIS: Use the full URL to your Flask backend
+      const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,50 +125,52 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ name, email, password }),
       });
 
-      const data = await response.json();
+      const data = await response.json(); // Attempt to parse JSON
 
       if (response.ok) {
-        // Success: Store token and user in localStorage and update state
-        // Note: Registration might not return a token immediately, depending on your backend logic.
-        // If registration auto-logs in, use the same logic as login.
-        // If not, you might just show a success message and redirect to login.
-        // For this example, assuming registration auto-logs in:
         const { access_token, user } = data;
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('user', JSON.stringify(user));
 
         dispatch({ type: 'LOGIN_SUCCESS', payload: { token: access_token, user } });
-        router.push('/'); // Redirect to dashboard
+        router.push('/Dashboard'); // Navigate to dashboard
       } else {
-        // Failure: Update state with error
+        // Server responded with an error status
         dispatch({ type: 'LOGIN_FAILURE', payload: data.error || 'Registration failed' });
       }
     } catch (error) {
       console.error('Registration error:', error);
+      // This handles network errors
       dispatch({ type: 'LOGIN_FAILURE', payload: 'Network error or server unavailable' });
     }
   };
 
-  // Function to logout
   const logout = () => {
-    // Clear data from localStorage
+    if (!isClient) {
+      console.error("Logout attempted before client-side initialization");
+      return;
+    }
+
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
-
-    // Update state
     dispatch({ type: 'LOGOUT' });
-    router.push('/login'); // Redirect to login page
+    router.push('/login');
   };
 
-  // Function to clear error message
   const clearError = () => {
     dispatch({ type: 'CLEAR_ERROR' });
   };
 
   // Provide state and functions to child components
+  // Only provide functions that require isClient check if needed, or wrap them
+  // Here we check inside the functions themselves
   return (
     <AuthContext.Provider value={{
-      ...state, // Spread user, token, loading, error
+      user,
+      token,
+      loading,
+      error,
+      isClient, // Optionally expose isClient to components
       login,
       register,
       logout,
