@@ -163,11 +163,15 @@ const DashboardPage = () => {
     }
   };
   const chartData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels: monthlyData.length > 0 
+      ? monthlyData.map(m => m.label)
+      : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
       {
         label: 'Carbon Footprint (kg CO₂)',
-        data: [320, 280, 300, 250, 220, 190],
+        data: monthlyData.length > 0
+          ? monthlyData.map(m => m.value)
+          : [320, 280, 300, 250, 220, 190],
         borderColor: '#34C759',
         backgroundColor: 'rgba(52, 199, 89, 0.1)',
         tension: 0.4,
@@ -229,9 +233,9 @@ const DashboardPage = () => {
               -15% this month
             </div>
           </div>
-          {/* <div className="h-72">
+          <div className="h-72">
             <Line data={chartData} options={chartOptions} />
-          </div> */}
+          </div>
         </Card>
         <Card>
           <h3 className="text-lg font-medium text-primary-dark mb-4">
