@@ -1,8 +1,9 @@
-from flask_sqlalchemy import SQLAlchemy
+#server/app/models/user.py
+from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 
-db = SQLAlchemy()
+# db = SQLAlchemy()
 
 class User(db.Model):
     """

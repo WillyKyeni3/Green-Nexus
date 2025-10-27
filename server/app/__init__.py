@@ -10,6 +10,9 @@ from config import Config # Assuming you will create this file for configuration
 db = SQLAlchemy()
 jwt = JWTManager()
 
+# IMPORT ALL MODELS HERE to ensure SQLAlchemy knows about them
+from app.models.user import User 
+
 def create_app(config_name='development'): # You can add different config names later
     app = Flask(__name__)
     
