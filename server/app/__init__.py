@@ -1,3 +1,4 @@
+# server/app/__init__.py
 from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -38,12 +39,13 @@ def create_app(config_name='development'): # You can add different config names 
     print("\n🚀 Registering API Blueprints...")
     
     # Register blueprints (routes)
-    try:
-        from app.routes.marketplace import marketplace_bp
-        app.register_blueprint(marketplace_bp)
-        print("✅ Marketplace API registered at /api/chat")
-    except ImportError as e:
-        print(f"⚠️  Marketplace blueprint not found: {e}")
+    # Commenting out marketplace for now to avoid OpenAI API key error during db init
+    # try:
+    #     from app.routes.marketplace import marketplace_bp
+    #     app.register_blueprint(marketplace_bp)
+    #     print("✅ Marketplace API registered at /api/chat")
+    # except ImportError as e:
+    #     print(f"⚠️  Marketplace blueprint not found: {e}")
     
     try:
         from app.routes.auth import auth_bp
@@ -70,8 +72,10 @@ def create_app(config_name='development'): # You can add different config names 
 
 
     # Import and register blueprints here after creating them
-    from app.routes.auth import auth_bp
-    app.register_blueprint(auth_bp) # Register the auth blueprint
+    # The direct import for auth_bp (without try-catch) is now redundant
+    # since it's handled in the try-catch block above. We can remove this line.
+    # from app.routes.auth import auth_bp
+    # app.register_blueprint(auth_bp) # Register the auth blueprint
 
     # Placeholder welcome route
     @app.route('/')
