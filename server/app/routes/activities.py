@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify
-activities_bp = Blueprint('activities', __name__)
 from app.services.activity_service import ActivityService
 
 activities_bp = Blueprint('activities', __name__, url_prefix='/api/activities')
@@ -85,10 +84,12 @@ def get_activities(user_id):
     - category: Filter by category (Transport, Food, Purchases)
     """
     try:
-        print(f"📥 Getting activities for user {user_id}")
+        print(f"\n📥 Getting activities for user {user_id}")
         
         limit = request.args.get('limit', 10, type=int)
         category = request.args.get('category', None)
+        
+        print(f"Fetching with limit={limit}, category={category}")
         
         result, status_code = ActivityService.get_user_activities(
             user_id=user_id,
@@ -96,12 +97,23 @@ def get_activities(user_id):
             category=category
         )
         
-        print(f"✅ Retrieved {len(result)} activities")
-        return jsonify(result), status_code
+        if isinstance(result, list):
+            print(f"✅ Retrieved {len(result)} activities")
+        else:
+            print(f"⚠️  Result type: {type(result)}, Content: {result}")
+        
+        # Always return as list for consistency
+        if isinstance(result, list):
+            return jsonify(result), status_code
+        else:
+            print(f"Error result: {result}")
+            return jsonify(result), status_code
         
     except Exception as e:
-        print(f"❌ ERROR: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        print(f"❌ ERROR in get_activities: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'type': 'fetch_error'}), 500
 
 
 @activities_bp.route('/weekly-stats/<int:user_id>', methods=['GET'])
@@ -110,17 +122,22 @@ def get_weekly_stats(user_id):
     Get weekly activity statistics for a user
     """
     try:
-        print(f"📊 Getting weekly stats for user {user_id}")
+        print(f"\n📊 Getting weekly stats for user {user_id}")
         
         result, status_code = ActivityService.get_weekly_stats(user_id)
         
         if status_code == 200:
-            print(f"✅ Total carbon saved this week: {result['total_carbon_saved']} kg CO₂")
+            print(f"✅ Total carbon saved this week: {result.get('total_carbon_saved')} kg CO₂")
+            print(f"✅ Total activities: {result.get('total_activities')}")
+        else:
+            print(f"⚠️  Error getting stats: {result}")
         
         return jsonify(result), status_code
         
     except Exception as e:
-        print(f"❌ ERROR: {str(e)}")
+        print(f"❌ ERROR in get_weekly_stats: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -142,6 +159,8 @@ def get_category_breakdown(user_id):
         
     except Exception as e:
         print(f"❌ ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -151,7 +170,7 @@ def delete_activity(user_id, activity_id):
     Delete an activity
     """
     try:
-        print(f"🗑️  Deleting activity {activity_id} for user {user_id}")
+        print(f"\n🗑️  Deleting activity {activity_id} for user {user_id}")
         
         result, status_code = ActivityService.delete_activity(user_id, activity_id)
         
@@ -162,6 +181,8 @@ def delete_activity(user_id, activity_id):
         
     except Exception as e:
         print(f"❌ ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -171,7 +192,7 @@ def get_activity_types():
     Get all available activity types and their conversions
     """
     try:
-        print("📋 Getting activity types")
+        print("\n📋 Getting activity types")
         
         result, status_code = ActivityService.get_activity_types()
         
@@ -179,6 +200,8 @@ def get_activity_types():
         
     except Exception as e:
         print(f"❌ ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
