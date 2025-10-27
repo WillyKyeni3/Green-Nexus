@@ -75,6 +75,93 @@ const DashboardPage = () => {
 
     fetchActivities();
   }, []);
+
+  
+  // Calculate Green Score (0-100) based on carbon footprint
+  const calculateGreenScore = (activities) => {
+    if (!activities || activities.length === 0) return 0;
+    
+    // Calculate total carbon footprint
+    const totalCarbon = activities.reduce(
+      (sum, activity) => sum + (activity.carbonFootprint || 0), 
+      0
+    );
+    
+    // Calculate average per day (lower is better)
+    const daysTracked = Math.max(
+      Math.ceil(
+        (new Date() - new Date(activities[0].date)) / (1000 * 60 * 60 * 24)
+      ),
+      1
+    );
+    const avgPerDay = totalCarbon / daysTracked;
+    
+    // Convert to score (example: 10 kg/day = 0, 0 kg/day = 100)
+    // Adjust these numbers based on your app's logic
+    const score = Math.max(0, Math.min(100, 100 - (avgPerDay * 10)));
+    
+    return Math.round(score);
+  };
+
+  // Calculate monthly carbon data for chart
+  const calculateMonthlyData = (activities) => {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlyTotals = {};
+    
+    activities.forEach(activity => {
+      const date = new Date(activity.date);
+      const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+      const monthLabel = monthNames[date.getMonth()];
+      
+      if (!monthlyTotals[monthKey]) {
+        monthlyTotals[monthKey] = { label: monthLabel, total: 0 };
+      }
+      
+      monthlyTotals[monthKey].total += activity.carbonFootprint || 0;
+    });
+    
+    // Get last 6 months
+    const sortedMonths = Object.entries(monthlyTotals)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .slice(-6);
+    
+    return sortedMonths.map(([key, data]) => ({
+      label: data.label,
+      value: Math.round(data.total * 10) / 10
+    }));
+  };
+
+  // Get icon for activity category
+  const getActivityIcon = (category) => {
+    switch(category?.toLowerCase()) {
+      case 'transportation':
+      case 'transport':
+        return <CarIcon size={18} className="mr-3 text-gray-500" />;
+      case 'food':
+        return <CoffeeIcon size={18} className="mr-3 text-gray-500" />;
+      case 'shopping':
+        return <ShoppingBagIcon size={18} className="mr-3 text-gray-500" />;
+      default:
+        return <CoffeeIcon size={18} className="mr-3 text-gray-500" />;
+    }
+  };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+  };
   const chartData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
