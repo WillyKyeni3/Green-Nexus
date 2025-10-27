@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(user)); // Store user info too
 
         dispatch({ type: 'LOGIN_SUCCESS', payload: { token: access_token, user } });
-        router.push('/'); // Redirect to dashboard
+        router.push('/Dashboard'); // Redirect to dashboard
       } else {
         // Failure: Update state with error
         dispatch({ type: 'LOGIN_FAILURE', payload: data.error || 'Login failed' });
