@@ -39,8 +39,7 @@ class ActivityService:
                 }, 400
             
             # Calculate carbon saved
-            carbon_saved = float(quantity) * conversion['carbon_per_unit']
-            energy_saved = float(quantity) * conversion['energy_per_unit']
+            carbon_saved = float(quantity) * conversion['conversion']
             
             # Create activity
             activity = Activity(
@@ -50,7 +49,6 @@ class ActivityService:
                 quantity=float(quantity),
                 unit=unit,
                 carbon_saved=carbon_saved,
-                energy_saved=energy_saved,
                 notes=notes
             )
             
@@ -111,7 +109,6 @@ class ActivityService:
             
             # Calculate statistics
             total_carbon_saved = sum(a.carbon_saved for a in activities)
-            total_energy_saved = sum(a.energy_saved for a in activities)
             activity_count = len(activities)
             
             # Group by day
@@ -121,16 +118,13 @@ class ActivityService:
                 if day not in daily_stats:
                     daily_stats[day] = {
                         'count': 0,
-                        'carbon_saved': 0,
-                        'energy_saved': 0
+                        'carbon_saved': 0
                     }
                 daily_stats[day]['count'] += 1
                 daily_stats[day]['carbon_saved'] += activity.carbon_saved
-                daily_stats[day]['energy_saved'] += activity.energy_saved
             
             return {
                 'total_carbon_saved': round(total_carbon_saved, 2),
-                'total_energy_saved': round(total_energy_saved, 2),
                 'total_activities': activity_count,
                 'daily_stats': daily_stats,
                 'period': 'last_7_days'

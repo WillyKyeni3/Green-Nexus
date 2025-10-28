@@ -16,7 +16,7 @@ class Activity(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     def __repr__(self):
-        return f'<Activity {self.id}: {self.activity_type}>'
+        return f'<Activity {self.id}: {self.activity_type} - {self.carbon_saved}kg CO2>'
     
     def to_dict(self):
         return {
