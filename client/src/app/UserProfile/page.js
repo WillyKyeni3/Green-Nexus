@@ -10,12 +10,17 @@ export default function EditProfile() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
-  const [profileImage, setProfileImage] = useState('/profile.jpeg');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '••••••••••••'
   });
+  
+  // Get initial letter from name
+  const getInitial = () => {
+    const name = formData.name || 'U';
+    return name.charAt(0).toUpperCase();
+  };
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -52,12 +57,6 @@ export default function EditProfile() {
         password: '••••••••••••'
       });
       
-      // Load profile image from localStorage if exists
-      const savedImage = localStorage.getItem(`profileImage_${userData.id}`);
-      if (savedImage) {
-        setProfileImage(savedImage);
-      }
-      
       // Store user_id for Dashboard activities
       if (userData.id) {
         localStorage.setItem('user_id', userData.id.toString());
@@ -81,24 +80,6 @@ export default function EditProfile() {
       [e.target.name]: e.target.value
     });
     setPasswordError('');
-  };
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const imageUrl = e.target?.result;
-        setProfileImage(imageUrl);
-        
-        // Save profile image to localStorage with user-specific key
-        const userData = user || JSON.parse(localStorage.getItem('user'));
-        if (userData?.id) {
-          localStorage.setItem(`profileImage_${userData.id}`, imageUrl);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleSaveProfile = async () => {
@@ -249,28 +230,14 @@ export default function EditProfile() {
       <div className="max-w-2xl mx-auto px-6 py-8">
         <h1 className="text-3xl font-bold mb-12">Edit profile</h1>
 
-        {/* Profile Picture */}
+        {/* Profile Picture with Initial */}
         <div className="flex justify-center mb-16">
           <div className="relative">
-            <input
-              type="file"
-              id="profile-upload"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageUpload}
-            />
-            <label htmlFor="profile-upload" className="cursor-pointer group">
-              <img
-                src={profileImage}
-                alt="Profile"
-                className="w-32 h-32 rounded-full object-cover group-hover:opacity-80 transition-opacity border-4 border-gray-200"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-50 rounded-full transition-all">
-                <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                  Change Photo
-                </span>
-              </div>
-            </label>
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-4 border-gray-200 shadow-lg">
+              <span className="text-6xl font-bold text-white">
+                {getInitial()}
+              </span>
+            </div>
           </div>
         </div>
 
