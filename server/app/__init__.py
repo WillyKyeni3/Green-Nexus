@@ -62,13 +62,13 @@ def create_app(config_name='development'):
     except ImportError:
         print("⚠️  Waste Scanner blueprint not configured yet")
 
-    # Marketplace blueprint - commented out as in Willy's version to avoid OpenAI API issues
-    # try:
-    #     from app.routes.marketplace import marketplace_bp
-    #     app.register_blueprint(marketplace_bp)
-    #     print("✅ Marketplace API registered at /api/chat")
-    # except ImportError as e:
-    #     print(f"⚠️  Marketplace blueprint not found: {e}")
+    # Marketplace blueprint - UNCOMMENTED to enable the chat API
+    try:
+        from app.routes.marketplace import marketplace_bp
+        app.register_blueprint(marketplace_bp) # This registers routes under /api/... as defined in the blueprint
+        print("✅ Marketplace API registered at /api/chat")
+    except ImportError as e:
+        print(f"⚠️  Marketplace blueprint not found: {e}")
 
     print("✨ Blueprint registration complete!\n")
 
@@ -81,7 +81,8 @@ def create_app(config_name='development'):
             "endpoints": {
                 "Activities": "/api/activities/*",
                 "Auth": "/api/auth/*",
-                "Waste Scanner": "/api/waste-scanner/*"
+                "Waste Scanner": "/api/waste-scanner/*",
+                "Marketplace Chat": "/api/chat" # Add this to the welcome message
             }
         }, 200
 
