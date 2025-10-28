@@ -1,6 +1,7 @@
-from app.models.activity import Activity, ACTIVITY_CONVERSIONS
 from app import db
 from datetime import datetime, timedelta
+from app.models.activity import Activity
+from app.constants import ACTIVITY_CONVERSIONS
 
 class ActivityService:
     """Service for managing user activities"""

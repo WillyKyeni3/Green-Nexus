@@ -571,7 +571,7 @@ const ActivityPage = () => {
                           <tbody>
                             {activities.map((activity, idx) => (
                               <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                <td className="px除尘-4 py-3 text-sm text-gray-900 font-medium">{activity.activity}</td>
+                                <td className="px-4 py-3 text-sm text-gray-900 font-medium">{activity.activity}</td>
                                 <td className="px-4 py-3 text-sm text-gray-600">{activity.quantity}</td>
                                 <td className="px-4 py-3 text-sm text-gray-600">{activity.date}</td>
                                 <td className="px-4 py-3 text-sm text-green-600 font-medium">{activity.impact}</td>
