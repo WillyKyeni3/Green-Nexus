@@ -38,30 +38,32 @@ const DashboardPage = () => {
   const [greenScore, setGreenScore] = useState(0);
   const [monthlyData, setMonthlyData] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
-// ADD THIS ENTIRE FUNCTION:
+
   useEffect(() => {
     const fetchActivities = async () => {
       try {
         setLoading(true);
         
-        // REPLACE WITH YOUR ACTUAL API ENDPOINT
-        const response = await fetch('/api/activities'); 
+        // IMPORTANT: Replace '1' with actual user ID from your auth system
+        const userId = 1; // TODO: Get from your authentication context
+        const response = await fetch(`/api/activities/${userId}`); 
         const data = await response.json();
         
-        if (data.activities) {
-          setActivities(data.activities);
+        // Backend returns array directly, not wrapped in {activities: [...]}
+        if (data && Array.isArray(data)) {
+          setActivities(data);
           
           // Calculate Green Score
-          const score = calculateGreenScore(data.activities);
+          const score = calculateGreenScore(data);
           setGreenScore(score);
           
           // Get monthly carbon data for chart
-          const monthly = calculateMonthlyData(data.activities);
+          const monthly = calculateMonthlyData(data);
           setMonthlyData(monthly);
           
           // Get recent activities (last 5)
-          const recent = data.activities
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
+          const recent = data
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
             .slice(0, 5);
           setRecentActivities(recent);
         }
@@ -81,24 +83,24 @@ const DashboardPage = () => {
   const calculateGreenScore = (activities) => {
     if (!activities || activities.length === 0) return 0;
     
-    // Calculate total carbon footprint
+    // Calculate total carbon saved (higher is better for green score)
     const totalCarbon = activities.reduce(
-      (sum, activity) => sum + (activity.carbonFootprint || 0), 
+      (sum, activity) => sum + (activity.carbon_saved || 0), 
       0
     );
     
-    // Calculate average per day (lower is better)
+    // Calculate average per day (higher is better)
     const daysTracked = Math.max(
       Math.ceil(
-        (new Date() - new Date(activities[0].date)) / (1000 * 60 * 60 * 24)
+        (new Date() - new Date(activities[0].created_at)) / (1000 * 60 * 60 * 24)
       ),
       1
     );
     const avgPerDay = totalCarbon / daysTracked;
     
-    // Convert to score (example: 10 kg/day = 0, 0 kg/day = 100)
+    // Convert to score (example: 0 kg/day = 0, 10+ kg/day = 100)
     // Adjust these numbers based on your app's logic
-    const score = Math.max(0, Math.min(100, 100 - (avgPerDay * 10)));
+    const score = Math.max(0, Math.min(100, avgPerDay * 10));
     
     return Math.round(score);
   };
@@ -110,7 +112,7 @@ const DashboardPage = () => {
     const monthlyTotals = {};
     
     activities.forEach(activity => {
-      const date = new Date(activity.date);
+      const date = new Date(activity.created_at);
       const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
       const monthLabel = monthNames[date.getMonth()];
       
@@ -118,7 +120,7 @@ const DashboardPage = () => {
         monthlyTotals[monthKey] = { label: monthLabel, total: 0 };
       }
       
-      monthlyTotals[monthKey].total += activity.carbonFootprint || 0;
+      monthlyTotals[monthKey].total += activity.carbon_saved || 0;
     });
     
     // Get last 6 months
@@ -135,11 +137,12 @@ const DashboardPage = () => {
   // Get icon for activity category
   const getActivityIcon = (category) => {
     switch(category?.toLowerCase()) {
-      case 'transportation':
       case 'transport':
+      case 'transportation':
         return <CarIcon size={18} className="mr-3 text-gray-500" />;
       case 'food':
         return <CoffeeIcon size={18} className="mr-3 text-gray-500" />;
+      case 'purchases':
       case 'shopping':
         return <ShoppingBagIcon size={18} className="mr-3 text-gray-500" />;
       default:
@@ -162,13 +165,14 @@ const DashboardPage = () => {
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
   };
+
   const chartData = {
     labels: monthlyData.length > 0 
       ? monthlyData.map(m => m.label)
       : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
       {
-        label: 'Carbon Footprint (kg CO₂)',
+        label: 'Carbon Saved (kg CO₂)',
         data: monthlyData.length > 0
           ? monthlyData.map(m => m.value)
           : [320, 280, 300, 250, 220, 190],
@@ -178,7 +182,7 @@ const DashboardPage = () => {
         fill: true,
       },
       {
-        label: 'Avg. User Footprint (kg CO₂)',
+        label: 'Avg. User Carbon Saved (kg CO₂)',
         data: [350, 340, 330, 325, 320, 310],
         borderColor: '#4CA9FF',
         backgroundColor: 'rgba(76, 169, 255, 0.1)',
@@ -244,7 +248,9 @@ const DashboardPage = () => {
           <div className="flex flex-col items-center">
             <div className="relative w-48 h-48 mb-4">
               <div className="w-full h-full rounded-full bg-primary-light flex items-center justify-center">
-                <div className="text-5xl font-bold text-primary-dark">85</div>
+                <div className="text-5xl font-bold text-primary-dark">
+                  {loading ? '...' : greenScore}
+                </div>
               </div>
               <div className="absolute top-0 right-0 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center">
                 <TrendingUpIcon size={20} />
@@ -257,7 +263,7 @@ const DashboardPage = () => {
               <div
                 className="bg-primary h-2 rounded-full"
                 style={{
-                  width: '85%',
+                  width: `${greenScore}%`,
                 }}
               ></div>
             </div>
@@ -279,47 +285,38 @@ const DashboardPage = () => {
             </h3>
           </div>
           <ul className="space-y-3">
-            <li className="flex items-center justify-between p-3 bg-soft-beige rounded-lg">
-              <div className="flex items-center">
-                <CarIcon size={18} className="mr-3 text-gray-500" />
-                <div>
-                  <p className="font-medium">Commute to Work</p>
-                  <p className="text-sm text-gray-500">
-                    Public Transit - 8.5 miles
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-medium text-primary-dark">1.2 kg CO₂</p>
-                <p className="text-xs text-gray-500">Today</p>
-              </div>
-            </li>
-            <li className="flex items-center justify-between p-3 bg-soft-beige rounded-lg">
-              <div className="flex items-center">
-                <ShoppingBagIcon size={18} className="mr-3 text-gray-500" />
-                <div>
-                  <p className="font-medium">Grocery Shopping</p>
-                  <p className="text-sm text-gray-500">Local Market</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-medium text-primary-dark">3.5 kg CO₂</p>
-                <p className="text-xs text-gray-500">Yesterday</p>
-              </div>
-            </li>
-            <li className="flex items-center justify-between p-3 bg-soft-beige rounded-lg">
-              <div className="flex items-center">
-                <CoffeeIcon size={18} className="mr-3 text-gray-500" />
-                <div>
-                  <p className="font-medium">Coffee Shop</p>
-                  <p className="text-sm text-gray-500">Brought Reusable Cup</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-medium text-primary-dark">0.3 kg CO₂</p>
-                <p className="text-xs text-gray-500">Yesterday</p>
-              </div>
-            </li>
+            {loading ? (
+              <li className="text-center py-4 text-gray-500">Loading activities...</li>
+            ) : recentActivities.length === 0 ? (
+              <li className="text-center py-4 text-gray-500">
+                No activities yet. Start tracking!
+              </li>
+            ) : (
+              recentActivities.map((activity) => (
+                <li 
+                  key={activity.id} 
+                  className="flex items-center justify-between p-3 bg-soft-beige rounded-lg"
+                >
+                  <div className="flex items-center">
+                    {getActivityIcon(activity.category)}
+                    <div>
+                      <p className="font-medium">{activity.activity_type}</p>
+                      <p className="text-sm text-gray-500">
+                        {activity.notes || `${activity.quantity} ${activity.unit}`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-primary-dark">
+                      {activity.carbon_saved} kg CO₂
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatDate(activity.created_at)}
+                    </p>
+                  </div>
+                </li>
+              ))
+            )}
           </ul>
         </Card>
         <Card>
@@ -381,4 +378,3 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
-
