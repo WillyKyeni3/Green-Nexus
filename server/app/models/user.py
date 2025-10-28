@@ -1,21 +1,26 @@
-#server/app/models/user.py
+# server/app/models/user.py
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
-import datetime
-
-# db = SQLAlchemy()
+from datetime import datetime
 
 class User(db.Model):
     """
     User model representing a user in the system.
     """
-    __tablename__ = 'users' # Optional: explicitly name the table
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False, index=True) # Index for faster lookups
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=True)  # Made nullable to handle both versions
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    green_score = db.Column(db.Float, default=0)
+    total_carbon_saved = db.Column(db.Float, default=0)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    activities = db.relationship('Activity', backref='user', lazy=True, cascade='all, delete-orphan')
 
     def set_password(self, password):
         """
@@ -30,4 +35,19 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
-        return f'<User {self.email}>'
+        return f'<User {self.username}>'
+    
+    def to_dict(self):
+        """
+        Convert user object to dictionary for JSON serialization.
+        """
+        return {
+            'id': self.id,
+            'username': self.username,
+            'name': self.name,
+            'email': self.email,
+            'green_score': self.green_score,
+            'total_carbon_saved': self.total_carbon_saved,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+        }

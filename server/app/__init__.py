@@ -1,10 +1,9 @@
 # server/app/__init__.py
 from flask import Flask
-from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config # Assuming you will create this file for configuration
-
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -13,17 +12,17 @@ jwt = JWTManager()
 # IMPORT ALL MODELS HERE to ensure SQLAlchemy knows about them
 from app.models.user import User 
 
-def create_app(config_name='development'): # You can add different config names later
+def create_app(config_name='development'):
     app = Flask(__name__)
     
     # Load configuration
     app.config.from_object(Config)
 
-    # Initialize extensions with the app instance
+    # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
-    
-    # Enable CORS for all routes with specific configuration
+
+    # Enable CORS for frontend - combined configuration
     CORS(app, resources={
         r"/api/*": {
             "origins": [
@@ -42,17 +41,9 @@ def create_app(config_name='development'): # You can add different config names 
     print("\n🚀 Registering API Blueprints...")
     
     # Register blueprints (routes)
-    # Commenting out marketplace for now to avoid OpenAI API key error during db init
-    # try:
-    #     from app.routes.marketplace import marketplace_bp
-    #     app.register_blueprint(marketplace_bp)
-    #     print("✅ Marketplace API registered at /api/chat")
-    # except ImportError as e:
-    #     print(f"⚠️  Marketplace blueprint not found: {e}")
-    
     try:
         from app.routes.auth import auth_bp
-        app.register_blueprint(auth_bp)
+        app.register_blueprint(auth_bp, url_prefix='/api/auth')
         print("✅ Auth API registered at /api/auth")
     except ImportError:
         print("⚠️  Auth blueprint not configured yet")
@@ -70,19 +61,28 @@ def create_app(config_name='development'): # You can add different config names 
         print("✅ Waste Scanner API registered at /api/waste-scanner")
     except ImportError:
         print("⚠️  Waste Scanner blueprint not configured yet")
-    
+
+    # Marketplace blueprint - commented out as in Willy's version to avoid OpenAI API issues
+    # try:
+    #     from app.routes.marketplace import marketplace_bp
+    #     app.register_blueprint(marketplace_bp)
+    #     print("✅ Marketplace API registered at /api/chat")
+    # except ImportError as e:
+    #     print(f"⚠️  Marketplace blueprint not found: {e}")
+
     print("✨ Blueprint registration complete!\n")
 
-
-    # Import and register blueprints here after creating them
-    # The direct import for auth_bp (without try-catch) is now redundant
-    # since it's handled in the try-catch block above. We can remove this line.
-    # from app.routes.auth import auth_bp
-    # app.register_blueprint(auth_bp) # Register the auth blueprint
-
-    # Placeholder welcome route
+    # Combined welcome route with both versions' information
     @app.route('/')
-    def home():
-        return {"message": "Welcome to the Green-Nexus API!"}, 200
+    def welcome():
+        return {
+            "message": "Welcome to Green-Nexus Backend!",
+            "version": "1.0.0",
+            "endpoints": {
+                "Activities": "/api/activities/*",
+                "Auth": "/api/auth/*",
+                "Waste Scanner": "/api/waste-scanner/*"
+            }
+        }, 200
 
     return app
