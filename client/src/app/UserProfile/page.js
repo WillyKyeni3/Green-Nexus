@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Eye, EyeOff, LogOut, Lock } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function EditProfile() {
+  const { user, logout } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [profileImage, setProfileImage] = useState('/profile.jpeg');
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '••••••••••••'
   });
@@ -25,38 +27,44 @@ export default function EditProfile() {
   // Load user data on component mount
   useEffect(() => {
     loadUserData();
-  }, []);
+  }, [user]);
 
   const loadUserData = () => {
-    // Get logged-in user data from localStorage
-    const loggedInUser = localStorage.getItem('loggedInUser');
+    // Get logged-in user data from AuthContext or localStorage
+    let userData = user;
     
-    if (loggedInUser) {
-      try {
-        const userData = JSON.parse(loggedInUser);
-        setFormData({
-          username: userData.username || 'Alex chart',
-          email: userData.email || 'alexchart@gmail.com',
-          password: userData.password || 'mySecurePassword123'
-        });
-        setProfileImage(userData.profileImage || '/profile.jpeg');
-      } catch (error) {
-        console.error('Error loading user data:', error);
-        // Set default values if there's an error
-        setFormData({
-          username: 'Alex chart',
-          email: 'alexchart@gmail.com',
-          password: 'mySecurePassword123'
-        });
+    if (!userData) {
+      // Fallback to localStorage if AuthContext hasn't loaded yet
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          userData = JSON.parse(storedUser);
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+        }
+      }
+    }
+    
+    if (userData) {
+      setFormData({
+        name: userData.name || userData.username || 'User',
+        email: userData.email || '',
+        password: '••••••••••••'
+      });
+      
+      // Load profile image from localStorage if exists
+      const savedImage = localStorage.getItem(`profileImage_${userData.id}`);
+      if (savedImage) {
+        setProfileImage(savedImage);
+      }
+      
+      // Store user_id for Dashboard activities
+      if (userData.id) {
+        localStorage.setItem('user_id', userData.id.toString());
       }
     } else {
-      // If no user is logged in, use default demo data
-      // In production, you would redirect to login page
-      setFormData({
-        username: 'Alex chart',
-        email: 'alexchart@gmail.com',
-        password: 'mySecurePassword123'
-      });
+      // If no user is logged in, redirect to login
+      window.location.href = '/login';
     }
   };
 
@@ -83,27 +91,71 @@ export default function EditProfile() {
         const imageUrl = e.target?.result;
         setProfileImage(imageUrl);
         
-        // Update user data in localStorage
-        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        loggedInUser.profileImage = imageUrl;
-        localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
+        // Save profile image to localStorage with user-specific key
+        const userData = user || JSON.parse(localStorage.getItem('user'));
+        if (userData?.id) {
+          localStorage.setItem(`profileImage_${userData.id}`, imageUrl);
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSaveProfile = () => {
-    // Update user data in localStorage
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    loggedInUser.username = formData.username;
-    loggedInUser.email = formData.email;
-    localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
-    
-    setSuccessMessage('Profile updated successfully!');
-    setTimeout(() => setSuccessMessage(''), 3000);
+  const handleSaveProfile = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const userData = user || JSON.parse(localStorage.getItem('user'));
+      
+      if (!token || !userData?.id) {
+        setPasswordError('Authentication required');
+        return;
+      }
+
+      // Call your backend API to update profile
+      const response = await fetch(`http://localhost:5000/api/users/${userData.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email
+        })
+      });
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        
+        // Update localStorage with new user data
+        localStorage.setItem('user', JSON.stringify({
+          ...userData,
+          name: formData.name,
+          email: formData.email
+        }));
+        
+        setSuccessMessage('Profile updated successfully!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        const error = await response.json();
+        setPasswordError(error.error || 'Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      // Fallback: Update localStorage only if backend fails
+      const userData = user || JSON.parse(localStorage.getItem('user'));
+      localStorage.setItem('user', JSON.stringify({
+        ...userData,
+        name: formData.name,
+        email: formData.email
+      }));
+      
+      setSuccessMessage('Profile updated locally!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    }
   };
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     setPasswordError('');
     
     if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
@@ -121,25 +173,45 @@ export default function EditProfile() {
       return;
     }
 
-    // Verify current password
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    if (loggedInUser.password !== passwordData.currentPassword) {
-      setPasswordError('Current password is incorrect');
-      return;
+    try {
+      const token = localStorage.getItem('access_token');
+      const userData = user || JSON.parse(localStorage.getItem('user'));
+      
+      if (!token || !userData?.id) {
+        setPasswordError('Authentication required');
+        return;
+      }
+
+      // Call your backend API to change password
+      const response = await fetch('http://localhost:5000/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          current_password: passwordData.currentPassword,
+          new_password: passwordData.newPassword
+        })
+      });
+
+      if (response.ok) {
+        setSuccessMessage('Password changed successfully!');
+        setShowChangePasswordModal(false);
+        setPasswordData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        const error = await response.json();
+        setPasswordError(error.error || 'Failed to change password');
+      }
+    } catch (error) {
+      console.error('Error changing password:', error);
+      setPasswordError('Network error. Please try again.');
     }
-
-    // Update password
-    loggedInUser.password = passwordData.newPassword;
-    localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
-
-    setSuccessMessage('Password changed successfully!');
-    setShowChangePasswordModal(false);
-    setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
-    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   const handleBackToDashboard = () => {
@@ -147,10 +219,8 @@ export default function EditProfile() {
   };
 
   const handleSignOut = () => {
-    // Clear logged-in user data
-    localStorage.removeItem('loggedInUser');
-    // Redirect to landing page
-    window.location.href = '/';
+    // Use the logout function from AuthContext
+    logout();
   };
 
   return (
@@ -195,7 +265,7 @@ export default function EditProfile() {
                 alt="Profile"
                 className="w-32 h-32 rounded-full object-cover group-hover:opacity-80 transition-opacity border-4 border-gray-200"
               />
-              <div className="absolute inset-0 flex items-center justify-center  bg-opacity-0 group-hover:bg-opacity-50 rounded-full transition-all">
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-50 rounded-full transition-all">
                 <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   Change Photo
                 </span>
@@ -206,13 +276,13 @@ export default function EditProfile() {
 
         {/* Form Fields */}
         <div className="space-y-8">
-          {/* Username Field */}
+          {/* Name Field */}
           <div className="border-b border-gray-300 pb-2">
-            <label className="block text-sm font-medium mb-2">Username</label>
+            <label className="block text-sm font-medium mb-2">Name</label>
             <input
               type="text"
-              name="username"
-              value={formData.username}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               className="w-full text-lg outline-none"
             />
@@ -238,7 +308,7 @@ export default function EditProfile() {
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 value={formData.password}
-                onChange={handleChange}
+                readOnly
                 className="w-full text-lg outline-none"
               />
               <button
