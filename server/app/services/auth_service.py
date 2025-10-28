@@ -24,13 +24,25 @@ def register_user(name, email, password):
     if not validate_email(email):
         return {"error": "Invalid email format."}, 400
 
-    # 2. Check if user already exists
+    # --- NEW: Generate a simple username from the name ---
+    # Basic sanitization: remove non-alphanumeric characters and spaces, lowercase
+    # Consider potential duplicates and add a suffix if needed (simplified here)
+    # In a real application, you'd need a more robust method to ensure uniqueness
+    base_username = re.sub(r'[^a-zA-Z0-9_]', '', name.replace(' ', '_')).lower()
+    username = base_username
+    counter = 1
+    # Check for uniqueness in the database
+    while User.query.filter_by(username=username).first():
+        username = f"{base_username}{counter}"
+        counter += 1
+
+    # 2. Check if user already exists by email
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         return {"error": "A user with this email already exists."}, 409 # Conflict
 
-    # 3. Create new user
-    new_user = User(name=name, email=email)
+    # 3. Create new user - now including the generated username
+    new_user = User(name=name, email=email, username=username) # <-- Add username here
     new_user.set_password(password) # Hash the password
 
     # 4. Add user to the database session
@@ -43,11 +55,13 @@ def register_user(name, email, password):
         access_token = create_access_token(identity=new_user.id) # Use user ID as identity
         
         # 7. Return success message, token, and user data
+        # Include the generated username in the response if needed
         return {
             "message": "User registered successfully.",
             "access_token": access_token,
             "user": {
                 "id": new_user.id,
+                "username": new_user.username, 
                 "name": new_user.name,
                 "email": new_user.email
             }
@@ -57,6 +71,8 @@ def register_user(name, email, password):
         # 8. Rollback in case of error
         db.session.rollback()
         current_app.logger.error(f"Registration error: {str(e)}")
+        # Check if the error is related to username or email constraints after potential rollback issues
+        # This is a general catch; you might want more specific handling
         return {"error": "An error occurred during registration. Please try again."}, 500
 
 
