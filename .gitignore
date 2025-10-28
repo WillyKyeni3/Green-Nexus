@@ -11,3 +11,5 @@ venv/
 
 # Database
 *.db
+
+/server/uploads/
