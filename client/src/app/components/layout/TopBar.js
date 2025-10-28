@@ -1,23 +1,64 @@
 // client/src/components/layout/TopBar.js
-import { useState } from 'react';
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BellIcon, ChevronDownIcon } from 'lucide-react';
 
 const TopBar = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const greenScore = 85;
-const handleBackTouserprofile = () => {
+  const [greenScore, setGreenScore] = useState(0);
+  const [userName, setUserName] = useState('User');
+  const [userInitials, setUserInitials] = useState('U');
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = () => {
+    // Get user data from localStorage
+    const storedUser = localStorage.getItem('user');
+    
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        const name = userData.name || userData.username || 'User';
+        setUserName(name);
+        
+        // Get initials (first letter of first and last name)
+        const nameParts = name.split(' ');
+        if (nameParts.length >= 2) {
+          setUserInitials(nameParts[0][0].toUpperCase() + nameParts[1][0].toUpperCase());
+        } else {
+          setUserInitials(name.substring(0, 2).toUpperCase());
+        }
+
+        // Get green score
+        setGreenScore(userData.green_score || 85);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  };
+
+  const handleBackTouserprofile = () => {
     window.location.href = '/UserProfile';
   };
+
   const handleBackTologout = () => {
+    // Clear user data
+    localStorage.removeItem('user');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_id');
     window.location.href = '/';
-  }
+  };
+
   return (
     <header className="bg-white border-b border-neutral-gray py-5 px-6 flex items-center justify-between">
       <div>
         <h2 className="text-lg font-medium text-gray-700">
-          Welcome back, Alex!
+          Welcome back, {userName}!
         </h2>
       </div>
       <div className="flex items-center space-x-5">
@@ -62,28 +103,26 @@ const handleBackTouserprofile = () => {
             className="flex items-center space-x-2 focus:outline-none"
             onClick={() => setShowProfile(!showProfile)}
           >
-            <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center">
-              <span className="font-medium text-primary-dark">AG</span>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <span className="font-medium text-white text-sm">{userInitials}</span>
             </div>
             <ChevronDownIcon size={16} />
           </button>
           {showProfile && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 border border-neutral-gray">
               <Link
-              onClick={handleBackTouserprofile}
+                onClick={handleBackTouserprofile}
                 href="/UserProfile"
                 className="block px-4 py-2 text-sm hover:bg-primary-light/30"
               >
                 Profile
               </Link>
-             
-              <Link
-              onClick={handleBackTologout}
-                href="/"
-                className="block px-4 py-2 text-sm hover:bg-primary-light/30"
+              <button
+                onClick={handleBackTologout}
+                className="block w-full text-left px-4 py-2 text-sm hover:bg-primary-light/30"
               >
                 Logout
-              </Link>
+              </button>
             </div>
           )}
         </div>
