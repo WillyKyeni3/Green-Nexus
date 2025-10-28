@@ -1,4 +1,5 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -19,7 +20,6 @@ import {
   CarIcon,
   ShoppingBagIcon,
 } from 'lucide-react';
-import Card from '../components/common/Card';
 
 ChartJS.register(
   CategoryScale,
@@ -32,9 +32,19 @@ ChartJS.register(
   Filler,
 );
 
-const DashboardPage = () => {
+// Simple Card component inline
+const Card = ({ children, className = '' }) => {
+  return (
+    <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+export default function DashboardPage() {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [greenScore, setGreenScore] = useState(0);
   const [monthlyData, setMonthlyData] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
@@ -43,34 +53,39 @@ const DashboardPage = () => {
     const fetchActivities = async () => {
       try {
         setLoading(true);
+        setError(null);
         
-        // IMPORTANT: Replace '1' with actual user ID from your auth system
-        const userId = 1; // TODO: Get from your authentication context
-        const response = await fetch(`/api/activities/${userId}`); 
+        const storedUserId = localStorage.getItem('user_id');
+        const userId = storedUserId ? parseInt(storedUserId) : 1;
+        
+        const API_BASE = 'http://localhost:5000';
+        const response = await fetch(`${API_BASE}/api/activities/${userId}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('Fetched activities:', data);
         
-        // Backend returns array directly, not wrapped in {activities: [...]}
-        if (data && Array.isArray(data)) {
+        if (Array.isArray(data)) {
           setActivities(data);
-          
-          // Calculate Green Score
           const score = calculateGreenScore(data);
           setGreenScore(score);
-          
-          // Get monthly carbon data for chart
           const monthly = calculateMonthlyData(data);
           setMonthlyData(monthly);
-          
-          // Get recent activities (last 5)
           const recent = data
             .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
             .slice(0, 5);
           setRecentActivities(recent);
+        } else {
+          console.warn('Unexpected data format:', data);
+          setError('Received unexpected data format from server');
         }
-        
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching activities:', error);
+        setError(error.message || 'Failed to load activities');
+      } finally {
         setLoading(false);
       }
     };
@@ -78,18 +93,12 @@ const DashboardPage = () => {
     fetchActivities();
   }, []);
 
-  
-  // Calculate Green Score (0-100) based on carbon footprint
   const calculateGreenScore = (activities) => {
     if (!activities || activities.length === 0) return 0;
-    
-    // Calculate total carbon saved (higher is better for green score)
     const totalCarbon = activities.reduce(
       (sum, activity) => sum + (activity.carbon_saved || 0), 
       0
     );
-    
-    // Calculate average per day (higher is better)
     const daysTracked = Math.max(
       Math.ceil(
         (new Date() - new Date(activities[0].created_at)) / (1000 * 60 * 60 * 24)
@@ -97,15 +106,10 @@ const DashboardPage = () => {
       1
     );
     const avgPerDay = totalCarbon / daysTracked;
-    
-    // Convert to score (example: 0 kg/day = 0, 10+ kg/day = 100)
-    // Adjust these numbers based on your app's logic
     const score = Math.max(0, Math.min(100, avgPerDay * 10));
-    
     return Math.round(score);
   };
 
-  // Calculate monthly carbon data for chart
   const calculateMonthlyData = (activities) => {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -119,11 +123,9 @@ const DashboardPage = () => {
       if (!monthlyTotals[monthKey]) {
         monthlyTotals[monthKey] = { label: monthLabel, total: 0 };
       }
-      
       monthlyTotals[monthKey].total += activity.carbon_saved || 0;
     });
     
-    // Get last 6 months
     const sortedMonths = Object.entries(monthlyTotals)
       .sort((a, b) => a[0].localeCompare(b[0]))
       .slice(-6);
@@ -134,7 +136,6 @@ const DashboardPage = () => {
     }));
   };
 
-  // Get icon for activity category
   const getActivityIcon = (category) => {
     switch(category?.toLowerCase()) {
       case 'transport':
@@ -150,7 +151,6 @@ const DashboardPage = () => {
     }
   };
 
-  // Format date for display
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const today = new Date();
@@ -195,6 +195,7 @@ const DashboardPage = () => {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'bottom',
@@ -217,22 +218,24 @@ const DashboardPage = () => {
         },
       },
     },
-    interaction: {
-      mode: 'nearest',
-      axis: 'x',
-      intersect: false,
-    },
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-2">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-medium text-primary-dark">
+            <h3 className="text-lg font-medium text-gray-800">
               Carbon Footprint Trends
             </h3>
-            <div className="bg-primary-light text-primary-dark px-3 py-1 rounded-full text-sm font-medium flex items-center">
+            <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
               <TrendingDownIcon size={16} className="mr-1" />
               -15% this month
             </div>
@@ -241,30 +244,29 @@ const DashboardPage = () => {
             <Line data={chartData} options={chartOptions} />
           </div>
         </Card>
+        
         <Card>
-          <h3 className="text-lg font-medium text-primary-dark mb-4">
+          <h3 className="text-lg font-medium text-gray-800 mb-4">
             Green Score
           </h3>
           <div className="flex flex-col items-center">
             <div className="relative w-48 h-48 mb-4">
-              <div className="w-full h-full rounded-full bg-primary-light flex items-center justify-center">
-                <div className="text-5xl font-bold text-primary-dark">
+              <div className="w-full h-full rounded-full bg-green-100 flex items-center justify-center">
+                <div className="text-5xl font-bold text-green-700">
                   {loading ? '...' : greenScore}
                 </div>
               </div>
-              <div className="absolute top-0 right-0 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center">
+              <div className="absolute top-0 right-0 bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center">
                 <TrendingUpIcon size={20} />
               </div>
             </div>
             <p className="text-gray-600 text-center mb-4">
               Your score is better than 75% of users in your area.
             </p>
-            <div className="w-full bg-neutral-gray rounded-full h-2 mb-1">
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
               <div
-                className="bg-primary h-2 rounded-full"
-                style={{
-                  width: `${greenScore}%`,
-                }}
+                className="bg-green-600 h-2 rounded-full"
+                style={{ width: `${greenScore}%` }}
               ></div>
             </div>
             <div className="flex justify-between w-full text-xs text-gray-500">
@@ -274,19 +276,24 @@ const DashboardPage = () => {
           </div>
         </Card>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <div className="flex items-center mb-4">
-            <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center mr-3">
-              <CoffeeIcon size={20} className="text-primary" />
+            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+              <CoffeeIcon size={20} className="text-green-600" />
             </div>
-            <h3 className="text-lg font-medium text-primary-dark">
+            <h3 className="text-lg font-medium text-gray-800">
               Recent Activities
             </h3>
           </div>
           <ul className="space-y-3">
             {loading ? (
               <li className="text-center py-4 text-gray-500">Loading activities...</li>
+            ) : error ? (
+              <li className="text-center py-4 text-red-500">
+                Failed to load activities. Please try refreshing.
+              </li>
             ) : recentActivities.length === 0 ? (
               <li className="text-center py-4 text-gray-500">
                 No activities yet. Start tracking!
@@ -295,7 +302,7 @@ const DashboardPage = () => {
               recentActivities.map((activity) => (
                 <li 
                   key={activity.id} 
-                  className="flex items-center justify-between p-3 bg-soft-beige rounded-lg"
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                 >
                   <div className="flex items-center">
                     {getActivityIcon(activity.category)}
@@ -307,7 +314,7 @@ const DashboardPage = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-primary-dark">
+                    <p className="font-medium text-gray-800">
                       {activity.carbon_saved} kg CO₂
                     </p>
                     <p className="text-xs text-gray-500">
@@ -319,19 +326,20 @@ const DashboardPage = () => {
             )}
           </ul>
         </Card>
+
         <Card>
           <div className="flex items-center mb-4">
-            <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center mr-3">
-              <TrendingUpIcon size={20} className="text-primary" />
+            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+              <TrendingUpIcon size={20} className="text-green-600" />
             </div>
-            <h3 className="text-lg font-medium text-primary-dark">
+            <h3 className="text-lg font-medium text-gray-800">
               AI Insights
             </h3>
           </div>
-          <div className="p-4 bg-primary-light rounded-lg border border-primary/20 mb-4">
+          <div className="p-4 bg-green-50 rounded-lg border border-green-200 mb-4">
             <div className="flex items-start">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white flex items-center justify-center mr-3">
-                <span className="font-bold text-primary">AI</span>
+                <span className="font-bold text-green-600">AI</span>
               </div>
               <div>
                 <p className="font-medium mb-1">
@@ -344,28 +352,28 @@ const DashboardPage = () => {
               </div>
             </div>
           </div>
-          <div className="p-4 bg-soft-beige rounded-lg mb-4">
+          <div className="p-4 bg-gray-50 rounded-lg mb-4">
             <h4 className="font-medium mb-2">Improvement Opportunities</h4>
             <ul className="space-y-2">
               <li className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-primary-light flex items-center justify-center mr-2">
-                  <span className="text-xs font-bold text-primary-dark">1</span>
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                  <span className="text-xs font-bold text-gray-800">1</span>
                 </div>
                 <p className="text-sm">
                   Switch to biking for trips under 3 miles
                 </p>
               </li>
               <li className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-primary-light flex items-center justify-center mr-2">
-                  <span className="text-xs font-bold text-primary-dark">2</span>
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                  <span className="text-xs font-bold text-gray-800">2</span>
                 </div>
                 <p className="text-sm">
                   Reduce meat consumption by 1 meal per week
                 </p>
               </li>
               <li className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-primary-light flex items-center justify-center mr-2">
-                  <span className="text-xs font-bold text-primary-dark">3</span>
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                  <span className="text-xs font-bold text-gray-800">3</span>
                 </div>
                 <p className="text-sm">Try shopping at local farmers market</p>
               </li>
@@ -375,6 +383,4 @@ const DashboardPage = () => {
       </div>
     </div>
   );
-};
-
-export default DashboardPage;
+}
