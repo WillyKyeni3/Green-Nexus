@@ -1,8 +1,10 @@
-'use client';
+// client/src/app/login/page.js
+'use client'; // Mark as a client component
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { LeafyGreenIcon, UserIcon, LockIcon, MailIcon} from 'lucide-react';
-import Button from '../components/common/Button';
+import { useRouter } from 'next/navigation'; // Still useful for programmatic redirects if needed
+import { LeafyGreenIcon, UserIcon, LockIcon, MailIcon } from 'lucide-react';
+import Button from '../components/common/Button'; // Adjust path if necessary
+import { useAuth } from '../../context/AuthContext'; // Import the hook
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,24 +13,34 @@ const LoginPage = () => {
   const [name, setName] = useState('');
   const router = useRouter();
 
-  const handleSubmit = (e) => {
+  // Get login/register functions and state from the context
+  const { login, register, loading, error } = useAuth();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, we would handle authentication here
-    router.push('/'); // Navigate to dashboard (homepage in Next.js)
+
+    if (isLogin) {
+      // Call the login function from the context
+      await login(email, password);
+    } else {
+      // Call the register function from the context
+      await register(name, email, password);
+    }
+    // The context handles navigation after success/error
   };
 
-    return (
+  return (
     <div className="flex h-screen bg-primary-light">
       {/* Left side - Nature illustration */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary relative items-center justify-center">
-        <div className="absolute inset-0 bg-linear-to-br from-primary-dark/70 to-primary/50 z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/70 to-primary/50 z-10"></div>
         <img
           src="https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1950&q=80"
           alt="Nature"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="relative z-20 text-white text-center max-w-md px-6">
-        < LeafyGreenIcon size={48} className="mx-auto mb-4" />
+          <LeafyGreenIcon size={48} className="mx-auto mb-4" />
           <h1 className="text-4xl font-bold mb-4">GreenNexus</h1>
           <p className="text-lg">
             Track, reduce, and offset your carbon footprint with our all-in-one
@@ -37,7 +49,7 @@ const LoginPage = () => {
         </div>
       </div>
 
-        {/* Right side - Login/Register form */}
+      {/* Right side - Login/Register form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
@@ -68,6 +80,13 @@ const LoginPage = () => {
               </button>
             </div>
 
+            {/* Display error message if present */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {error}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit}>
               {!isLogin && (
                 <div className="mb-4">
@@ -87,8 +106,8 @@ const LoginPage = () => {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="block w-full pl-10 pr-3 py-2 border border-neutral-gray rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                      placeholder="John Doe"
-                      required
+                      placeholder="Terry Yegon"
+                      required={!isLogin} // Only required for signup
                     />
                   </div>
                 </div>
@@ -140,10 +159,10 @@ const LoginPage = () => {
                 </div>
               </div>
 
-              <Button type="submit" fullWidth>
-                {isLogin ? 'Login' : 'Create Account'}
+              <Button type="submit" fullWidth disabled={loading}>
+                {loading ? 'Processing...' : (isLogin ? 'Login' : 'Create Account')}
               </Button>
-              
+
               {isLogin && (
                 <div className="mt-4 text-center">
                   <a
@@ -170,9 +189,7 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
-              
-
-    );
+  );
 };
 
 export default LoginPage;

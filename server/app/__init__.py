@@ -3,11 +3,14 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from config import Config
+from config import Config # Assuming you will create this file for configuration
 
 # Initialize extensions
 db = SQLAlchemy()
 jwt = JWTManager()
+
+# IMPORT ALL MODELS HERE to ensure SQLAlchemy knows about them
+from app.models.user import User 
 
 def create_app(config_name='development'):
     app = Flask(__name__)
@@ -19,53 +22,57 @@ def create_app(config_name='development'):
     db.init_app(app)
     jwt.init_app(app)
 
-    # Enable CORS for frontend
+    # Enable CORS for frontend - combined configuration
     CORS(app, resources={
         r"/api/*": {
             "origins": [
                 "http://localhost:3000",
-                "http://127.0.0.1:3000"
+                "http://localhost:3001",
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:3001"
             ],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
-            "supports_credentials": True
+            "supports_credentials": True,
+            "max_age": 3600
         }
     })
 
-    print("\nRegistering API Blueprints...")
-
-    # Register blueprints
-    try:
-        from app.routes.activities import activities_bp
-        app.register_blueprint(activities_bp, url_prefix='/api/activities')
-        print("Activities API → /api/activities/*")
-    except ImportError as e:
-        print(f"Activities blueprint missing: {e}")
-
+    print("\n🚀 Registering API Blueprints...")
+    
+    # Register blueprints (routes)
     try:
         from app.routes.auth import auth_bp
         app.register_blueprint(auth_bp, url_prefix='/api/auth')
-        print("Auth API → /api/auth/*")
+        print("✅ Auth API registered at /api/auth")
     except ImportError:
-        print("Auth blueprint not configured")
-
+        print("⚠️  Auth blueprint not configured yet")
+    
     try:
-        from app.routes.marketplace import marketplace_bp
-        app.register_blueprint(marketplace_bp)
-        print("Marketplace API registered")
+        from app.routes.activities import activities_bp
+        app.register_blueprint(activities_bp, url_prefix='/api/activities')
+        print("✅ Activities API registered at /api/activities")
     except ImportError:
-        print("Marketplace blueprint missing")
-
+        print("⚠️  Activities blueprint not configured yet")
+    
     try:
         from app.routes.waste_scanner import waste_scanner_bp
         app.register_blueprint(waste_scanner_bp, url_prefix='/api/waste-scanner')
-        print("Waste Scanner API → /api/waste-scanner/*")
+        print("✅ Waste Scanner API registered at /api/waste-scanner")
     except ImportError:
-        print("Waste Scanner blueprint missing")
+        print("⚠️  Waste Scanner blueprint not configured yet")
 
-    print("Blueprint registration complete!\n")
+    # Marketplace blueprint - commented out as in Willy's version to avoid OpenAI API issues
+    # try:
+    #     from app.routes.marketplace import marketplace_bp
+    #     app.register_blueprint(marketplace_bp)
+    #     print("✅ Marketplace API registered at /api/chat")
+    # except ImportError as e:
+    #     print(f"⚠️  Marketplace blueprint not found: {e}")
 
-    # Root welcome endpoint
+    print("✨ Blueprint registration complete!\n")
+
+    # Combined welcome route with both versions' information
     @app.route('/')
     def welcome():
         return {
