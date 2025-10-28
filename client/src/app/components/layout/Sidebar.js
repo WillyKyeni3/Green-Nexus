@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   HomeIcon,
   LeafyGreenIcon,
@@ -16,16 +16,37 @@ import {
 const Sidebar = () => {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [userName, setUserName] = useState('User');
+  const [userInitial, setUserInitial] = useState('U');
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = () => {
+    // Get user data from localStorage
+    const storedUser = localStorage.getItem('user');
+    
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        const name = userData.name || userData.username || 'User';
+        setUserName(name);
+        
+        // Get first letter of name
+        setUserInitial(name.charAt(0).toUpperCase());
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  };
 
   const isActive = (path) => {
     return pathname === path || pathname.startsWith(path + '/');
   };
 
-  // Optional: Remove onClick handlers that force full page reloads
-  // since Next.js Link handles client-side navigation
-
   return (
- <aside
+    <aside
       className={`bg-white shadow-lg flex flex-col fixed lg:relative h-full transition-all duration-300 ease-in-out z-40 ${
         sidebarOpen ? 'w-64' : 'w-20'
       }`}
@@ -156,15 +177,15 @@ const Sidebar = () => {
       {/* User Profile Footer */}
       <div className="p-4 border-t border-neutral-gray transition-all duration-300">
         <div className="flex items-center">
-          <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center flex-shrink-0">
-            <UserIcon size={20} className="text-primary" />
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+            <span className="text-white font-bold text-lg">{userInitial}</span>
           </div>
           <div
             className={`ml-3 transition-all duration-300 overflow-hidden whitespace-nowrap ${
               sidebarOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'
             }`}
           >
-            <p className="font-medium text-primary-dark">Alex Green</p>
+            <p className="font-medium text-primary-dark">{userName}</p>
             <p className="text-sm text-gray-500">Eco Enthusiast</p>
           </div>
         </div>
