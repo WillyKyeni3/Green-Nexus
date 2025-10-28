@@ -60,7 +60,7 @@ const MarketplacePage = () => {
 
         {/* Welcome Message - Center */}
         <div>
-          <h2 className="text-lg font-medium text-gray-700">Welcome back, Alex!</h2>
+          <h2 className="text-lg font-medium text-gray-700"> We Love Earth!</h2>
         </div>
 
         <div className="flex items-center space-x-5">
