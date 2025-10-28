@@ -16,6 +16,7 @@ const WasteScannerPage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState(null);
+  const [originalFile, setOriginalFile] = useState(null); // Added to store the original file
   const fileInputRef = useRef(null);
 
   const handleDragOver = (e) => {
@@ -31,12 +32,18 @@ const WasteScannerPage = () => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer?.files?.[0];
-    if (file) handleFile(file);
+    if (file) {
+      setOriginalFile(file); // Store the original file
+      handleFile(file);
+    }
   };
 
   const handleFileInput = (e) => {
     const file = e.target?.files?.[0];
-    if (file) handleFile(file);
+    if (file) {
+      setOriginalFile(file); // Store the original file
+      handleFile(file);
+    }
   };
 
   const handleFile = (file) => {
@@ -49,33 +56,60 @@ const WasteScannerPage = () => {
       if (ev.target?.result) {
         setImage(ev.target.result);
         setResults(null);
+        setOriginalFile(file); // Store the original file
       }
     };
     reader.readAsDataURL(file);
   };
 
-  const handleAnalyze = () => {
-    if (!image) return;
+  const handleAnalyze = async () => {
+    if (!originalFile) {
+      alert('No file selected for analysis');
+      return;
+    }
     setIsAnalyzing(true);
-    // Simulate analysis with a timeout (replace with real API call)
-    setTimeout(() => {
-      setResults({
-        recyclable: true,
-        materialType: 'Plastic (PET)',
-        confidence: 0.92,
-        tips: [
-          'Rinse container before recycling',
-          'Remove cap and place in separate recycling bin',
-          'Check local guidelines for PET recycling',
-        ],
+    try {
+      const formData = new FormData();
+      formData.append('image', originalFile);
+
+      // Adjust the URL if your backend runs on a different port
+      const response = await fetch('http://localhost:5000/api/waste-scanner/upload', {
+        method: 'POST',
+        body: formData,
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({})); // Handle potential JSON parse errors
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Transform the backend response to match your frontend format
+      // The backend returns fields like waste_type, recyclability, recycling_instructions, etc.
+      const transformedResults = {
+        recyclable: data.data.recyclability === 'Recyclable' || data.data.recyclability === 'Conditionally recyclable',
+        materialType: data.data.material_composition || 'Unknown',
+        confidence: 0.95, // Placeholder confidence, could be improved later
+        tips: data.data.recycling_instructions ? [data.data.recycling_instructions] : [],
+        wasteType: data.data.waste_type || 'Unknown',
+        environmentalImpact: data.data.environmental_impact || 'No information available',
+        id: data.data.id, // Store the ID from the backend if needed
+      };
+
+      setResults(transformedResults);
+    } catch (error) {
+      console.error('Analysis error:', error);
+      alert(`Analysis failed: ${error.message}`);
+    } finally {
       setIsAnalyzing(false);
-    }, 2000);
+    }
   };
 
   const handleReset = () => {
     setImage(null);
     setResults(null);
+    setOriginalFile(null); // Reset the original file state
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -199,7 +233,7 @@ const WasteScannerPage = () => {
                   <div>
                     <h4 className="font-medium text-primary-dark mb-1">Material Identification</h4>
                     <p className="text-gray-700 mb-2">
-                      We&apos;ve identified this item as: <span className="font-medium">{results.materialType}</span>
+                      We&apos;ve identified this item as: <span className="font-medium">{results.wasteType} ({results.materialType})</span>
                     </p>
 
                     <div className="flex items-center">
@@ -209,6 +243,11 @@ const WasteScannerPage = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <div className="mb-4">
+                <h4 className="font-medium text-primary-dark mb-2">Environmental Impact</h4>
+                <p className="text-gray-700">{results.environmentalImpact}</p>
               </div>
 
               <div>
@@ -230,7 +269,7 @@ const WasteScannerPage = () => {
                   <div className="w-6 h-6 rounded bg-neutral-gray flex items-center justify-center mr-2">
                     <span className="text-xs font-bold">AI</span>
                   </div>
-                  <span className="text-xs text-gray-500">Powered by Hugging Face</span>
+                  <span className="text-xs text-gray-500">Powered by OpenAI</span>
                 </div>
 
                 <Button variant="outline" size="sm" onClick={handleReset}>
