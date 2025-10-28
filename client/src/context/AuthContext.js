@@ -107,7 +107,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (name, email, password) => {
+    const register = async (name, email, password) => {
     if (!isClient) {
       console.error("Register attempted before client-side initialization");
       return;
@@ -127,12 +127,13 @@ export const AuthProvider = ({ children }) => {
 
       const data = await response.json(); // Attempt to parse JSON
 
-      if (response.ok) {
-        const { access_token, user } = data;
+      if (response.ok) { 
+        // CHANGE: Update how the user data is handled here
+        const { access_token, user: userData } = data; 
         localStorage.setItem('access_token', access_token);
-        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('user', JSON.stringify(userData)); 
 
-        dispatch({ type: 'LOGIN_SUCCESS', payload: { token: access_token, user } });
+        dispatch({ type: 'LOGIN_SUCCESS', payload: { token: access_token, user: userData } }); 
         router.push('/Dashboard'); // Navigate to dashboard
       } else {
         // Server responded with an error status
