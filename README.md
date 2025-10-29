@@ -250,7 +250,7 @@ We would like to thank the following individuals for their contributions to the 
 - **Github link** -  https://github.com/WillyKyeni3
 - **Terry Yegon** - [yegonterry618@gmail.com](mailto:yegonterry618@gmail.com) - Full Stack Developer, Dashboard, user Profile
 - **Github link** -  https://github.com/TerryYegon
-- **Shelton Juma** - [contributor3.email@example.com](mailto:contributor3.email@example.com) - Full Stack Developer, Activity Page, Ai Marketplace
+- **Shelton Juma** - [shamolashelton@gmail.com](mailto:shamolashelton@gmail.com) - Full Stack Developer, Activity Page, Ai Marketplace
 - **Github link** -  https://github.com/Shamola-Shelton
 
 ## License
