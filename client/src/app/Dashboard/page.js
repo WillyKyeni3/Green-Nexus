@@ -110,6 +110,9 @@ export default function DashboardPage() {
           const score = calculateGreenScore(data);
           setGreenScore(score);
           console.log('Calculated green score:', score); // Debug log
+          const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+          storedUser.green_score = score;
+          localStorage.setItem('user', JSON.stringify(storedUser));
           
           // Get monthly carbon data for chart
           const monthly = calculateMonthlyData(data);

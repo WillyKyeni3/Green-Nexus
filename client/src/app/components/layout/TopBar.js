@@ -12,10 +12,14 @@ const TopBar = () => {
   const [userName, setUserName] = useState('User');
   const [userInitials, setUserInitials] = useState('U');
 
-  useEffect(() => {
-    loadUserData();
-  }, []);
-
+ useEffect(() => {
+  loadUserData();
+  
+  // Auto-refresh every 2 seconds
+  const interval = setInterval(loadUserData, 2000);
+  
+  return () => clearInterval(interval);
+}, []);
   const loadUserData = () => {
     // Get user data from localStorage
     const storedUser = localStorage.getItem('user');
@@ -35,7 +39,7 @@ const TopBar = () => {
         }
 
         // Get green score
-        setGreenScore(userData.green_score || 85);
+        setGreenScore(userData.green_score || 0);
       } catch (error) {
         console.error('Error parsing user data:', error);
       }
