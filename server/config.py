@@ -10,11 +10,21 @@ class Config:
 
     # === POSTGRESQL URL FIX (Render gives postgres://) ===
     database_url = os.environ.get('DATABASE_URL')
+    
     if database_url:
+        # Fix Render's postgres:// to postgresql://
         if database_url.startswith('postgres://'):
             database_url = database_url.replace('postgres://', 'postgresql://', 1)
     else:
-        database_url = 'sqlite:///instance/greennexus.db'  # fallback
+        # Check if we're in production (Render sets RENDER env var)
+        if os.environ.get('RENDER'):
+            raise RuntimeError(
+                "DATABASE_URL environment variable is not set on Render. "
+                "Please add a PostgreSQL database to your Render service."
+            )
+        # Local development fallback
+        database_url = 'sqlite:///instance/greennexus.db'
+        print("⚠️  WARNING: Using SQLite for local development")
 
     SQLALCHEMY_DATABASE_URI = database_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False

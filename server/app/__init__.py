@@ -36,9 +36,17 @@ def create_app(config_name='development'):
             JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY') or 'fallback-jwt'
             SQLALCHEMY_TRACK_MODIFICATIONS = False
             db_url = os.getenv('DATABASE_URL')
-            if db_url and db_url.startswith('postgres://'):
-                db_url = db_url.replace('postgres://', 'postgresql://', 1)
-            SQLALCHEMY_DATABASE_URI = db_url or 'sqlite:///instance/greennexus.db'
+            if db_url:
+                if db_url.startswith('postgres://'):
+                    db_url = db_url.replace('postgres://', 'postgresql://', 1)
+            else:
+                if os.getenv('RENDER'):
+                    raise RuntimeError(
+                        "DATABASE_URL environment variable is not set on Render. "
+                        "Please add a PostgreSQL database to your Render service."
+                    )
+                db_url = 'sqlite:///instance/greennexus.db'
+            SQLALCHEMY_DATABASE_URI = db_url
             UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
             os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
