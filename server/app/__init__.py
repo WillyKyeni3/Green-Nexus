@@ -11,37 +11,36 @@ from flask_jwt_extended import JWTManager
 db = SQLAlchemy()
 jwt = JWTManager()
 
-
 # ----------------------------------------------------------------------
 # IMPORT MODELS (so SQLAlchemy registers tables)
 # ----------------------------------------------------------------------
-from app.models.user import User          # <-- add every model here
+from app.models.user import User
 from app.models.activity import Activity
-from config import Config
 # from app.models.waste_item import WasteItem   # uncomment when ready
 # from app.models.product import Product
 
 
 def create_app(config_name='development'):
     app = Flask(__name__)
-    app.config.from_object(Config)
 
     # -------------------------- CONFIG --------------------------
-    class BaseConfig:
-        SECRET_KEY = os.getenv('SECRET_KEY') or 'dev-secret-change-me'
-        JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY') or 'dev-jwt-change-me'
-
-        # Render gives postgres:// → convert to postgresql://
-        db_url = os.getenv('DATABASE_URL')
-        if db_url and db_url.startswith('postgres://'):
-            db_url = db_url.replace('postgres://', 'postgresql://', 1)
-        SQLALCHEMY_DATABASE_URI = db_url or 'sqlite:///instance/greennexus.db'
-
-        SQLALCHEMY_TRACK_MODIFICATIONS = False
-        UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'uploads')
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-    app.config.from_object(BaseConfig)
+    # Load from config.py (must exist in server/)
+    try:
+        from config import Config
+        app.config.from_object(Config)
+    except ImportError as e:
+        print("config.py not found! Using fallback config.")
+        class FallbackConfig:
+            SECRET_KEY = os.getenv('SECRET_KEY') or 'fallback-secret'
+            JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY') or 'fallback-jwt'
+            SQLALCHEMY_TRACK_MODIFICATIONS = False
+            db_url = os.getenv('DATABASE_URL')
+            if db_url and db_url.startswith('postgres://'):
+                db_url = db_url.replace('postgres://', 'postgresql://', 1)
+            SQLALCHEMY_DATABASE_URI = db_url or 'sqlite:///instance/greennexus.db'
+            UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        app.config.from_object(FallbackConfig)
 
     # -------------------------- EXTENSIONS --------------------------
     db.init_app(app)
@@ -56,8 +55,8 @@ def create_app(config_name='development'):
                 "http://localhost:3001",
                 "http://127.0.0.1:3000",
                 "http://127.0.0.1:3001",
-                # <-- add your Vercel domain later
-                # "https://your-frontend.vercel.app"
+                "https://*.vercel.app",  # Allow Vercel
+                "*"  # TEMP: Remove in production
             ],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
@@ -72,17 +71,23 @@ def create_app(config_name='development'):
     def _register(bp, prefix, name):
         try:
             app.register_blueprint(bp, url_prefix=prefix)
-            print(f"{name} API → {prefix}/*")
+            print(f"{name} API registered at {prefix}")
         except Exception as e:
-            print(f"{name} blueprint missing: {e}")
+            print(f"{name} blueprint failed: {e}")
 
     # Auth
-    from app.routes.auth import auth_bp
-    _register(auth_bp, '/api/auth', 'Auth')
+    try:
+        from app.routes.auth import auth_bp
+        _register(auth_bp, '/api/auth', 'Auth')
+    except ImportError as e:
+        print(f"Auth import failed: {e}")
 
     # Activities
-    from app.routes.activities import activities_bp
-    _register(activities_bp, '/api/activities', 'Activities')
+    try:
+        from app.routes.activities import activities_bp
+        _register(activities_bp, '/api/activities', 'Activities')
+    except ImportError as e:
+        print(f"Activities import failed: {e}")
 
     # Waste Scanner
     try:
@@ -94,7 +99,7 @@ def create_app(config_name='development'):
     # Marketplace
     try:
         from app.routes.marketplace import marketplace_bp
-        app.register_blueprint(marketplace_bp)   # uses its own prefixes
+        app.register_blueprint(marketplace_bp)
         print("Marketplace API registered")
     except ImportError as e:
         print(f"Marketplace blueprint missing: {e}")
@@ -107,6 +112,7 @@ def create_app(config_name='development'):
         return {
             "message": "Welcome to Green-Nexus Backend!",
             "version": "1.0.0",
+            "status": "LIVE",
             "endpoints": {
                 "Auth": "/api/auth/*",
                 "Activities": "/api/activities/*",
@@ -115,9 +121,8 @@ def create_app(config_name='development'):
             }
         }, 200
 
-    # Create tables on first request (Render cold start)
-    @app.before_first_request
-    def create_tables():
-        db.create_all()
+    # -------------------------- DB INIT (MOVED TO run.py) --------------------------
+    # DO NOT USE @app.before_first_request — it crashes Gunicorn on startup
+    # Tables are created in run.py after app context
 
     return app
