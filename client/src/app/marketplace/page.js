@@ -8,7 +8,7 @@ import Card from '../components/common/Card';
 const MarketplacePage = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([
-    { role: 'ai', content: 'Hello Alex ... Ready to discover sustainable products? Ask away! 🌿' }
+    { role: 'ai', content: 'Hello ... Ready to discover sustainable products? Ask away! 🌿' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   // const [sidebarOpen, setSidebarOpen] = useState(false);
