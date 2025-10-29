@@ -10,6 +10,48 @@ from app.constants import ACTIVITY_CONVERSIONS  # ONLY THIS
 activities_bp = Blueprint('activities', __name__)
 
 # ----------------------------------------------------------------------
+#  PUT /api/activities/<user_id>/<activity_id>
+# ----------------------------------------------------------------------
+@activities_bp.route('/<int:user_id>/<int:activity_id>', methods=['PUT'])
+def update_activity(user_id, activity_id):
+    """Update an activity."""
+    try:
+        if not request.is_json:
+            return jsonify({'error': 'Request must be JSON'}), 400
+
+        data = request.get_json()
+        required = ['activity_type', 'quantity', 'unit']
+        missing = [f for f in required if f not in data]
+        if missing:
+            return jsonify({'error': f'Missing: {", ".join(missing)}'}), 400
+
+        activity_type = data['activity_type']
+        quantity = float(data.get('quantity', 0))
+        unit = data['unit']
+        notes = data.get('notes', '')
+
+        # Update via service
+        result, status = ActivityService.update_activity(
+            user_id, activity_id, activity_type, quantity, unit, notes
+        )
+        if status != 200:
+            return jsonify(result), status
+
+        # Update user stats
+        user = User.query.get(user_id)
+        if user:
+            db.session.commit()
+
+        return jsonify(result), 200
+
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ----------------------------------------------------------------------
 #  GET /api/activities/types
 # ----------------------------------------------------------------------
 @activities_bp.route('/types', methods=['GET'])
