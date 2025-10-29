@@ -42,7 +42,6 @@ const Card = ({ children, className = '' }) => {
 };
 
 export default function DashboardPage() {
-  const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [greenScore, setGreenScore] = useState(0);
@@ -55,8 +54,11 @@ export default function DashboardPage() {
         setLoading(true);
         setError(null);
         
+        // Get user_id from localStorage
         const storedUserId = localStorage.getItem('user_id');
         const userId = storedUserId ? parseInt(storedUserId) : 1;
+        
+        console.log('Fetching activities for user:', userId); // Debug log
         
         const API_BASE = 'http://localhost:5000';
         const response = await fetch(`${API_BASE}/api/activities/${userId}`);
@@ -66,18 +68,31 @@ export default function DashboardPage() {
         }
         
         const data = await response.json();
-        console.log('Fetched activities:', data);
+        console.log('Fetched activities:', data); // Debug log
+        console.log('Number of activities:', data.length); // Debug log
         
-        if (Array.isArray(data)) {
-          setActivities(data);
+        if (Array.isArray(data) && data.length > 0) {
+          // Calculate Green Score
           const score = calculateGreenScore(data);
           setGreenScore(score);
+          console.log('Calculated green score:', score); // Debug log
+          
+          // Get monthly carbon data for chart
           const monthly = calculateMonthlyData(data);
           setMonthlyData(monthly);
+          console.log('Monthly data:', monthly); // Debug log
+          
+          // Get recent activities (last 5)
           const recent = data
             .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
             .slice(0, 5);
           setRecentActivities(recent);
+          console.log('Recent activities:', recent); // Debug log
+        } else if (Array.isArray(data) && data.length === 0) {
+          console.log('No activities found for this user');
+          setRecentActivities([]);
+          setGreenScore(0);
+          setMonthlyData([]);
         } else {
           console.warn('Unexpected data format:', data);
           setError('Received unexpected data format from server');
@@ -95,10 +110,12 @@ export default function DashboardPage() {
 
   const calculateGreenScore = (activities) => {
     if (!activities || activities.length === 0) return 0;
+    
     const totalCarbon = activities.reduce(
-      (sum, activity) => sum + (activity.carbon_saved || 0), 
+      (sum, activity) => sum + (parseFloat(activity.carbon_saved) || 0), 
       0
     );
+    
     const daysTracked = Math.max(
       Math.ceil(
         (new Date() - new Date(activities[0].created_at)) / (1000 * 60 * 60 * 24)
@@ -107,6 +124,7 @@ export default function DashboardPage() {
     );
     const avgPerDay = totalCarbon / daysTracked;
     const score = Math.max(0, Math.min(100, avgPerDay * 10));
+    
     return Math.round(score);
   };
 
@@ -123,7 +141,7 @@ export default function DashboardPage() {
       if (!monthlyTotals[monthKey]) {
         monthlyTotals[monthKey] = { label: monthLabel, total: 0 };
       }
-      monthlyTotals[monthKey].total += activity.carbon_saved || 0;
+      monthlyTotals[monthKey].total += parseFloat(activity.carbon_saved) || 0;
     });
     
     const sortedMonths = Object.entries(monthlyTotals)
@@ -175,7 +193,7 @@ export default function DashboardPage() {
         label: 'Carbon Saved (kg CO₂)',
         data: monthlyData.length > 0
           ? monthlyData.map(m => m.value)
-          : [320, 280, 300, 250, 220, 190],
+          : [0, 0, 0, 0, 0, 0],
         borderColor: '#34C759',
         backgroundColor: 'rgba(52, 199, 89, 0.1)',
         tension: 0.4,
@@ -207,7 +225,7 @@ export default function DashboardPage() {
     },
     scales: {
       y: {
-        beginAtZero: false,
+        beginAtZero: true,
         grid: {
           color: 'rgba(0, 0, 0, 0.05)',
         },
@@ -237,7 +255,7 @@ export default function DashboardPage() {
             </h3>
             <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
               <TrendingDownIcon size={16} className="mr-1" />
-              -15% this month
+              Track your progress
             </div>
           </div>
           <div className="h-72">
@@ -261,11 +279,11 @@ export default function DashboardPage() {
               </div>
             </div>
             <p className="text-gray-600 text-center mb-4">
-              Your score is better than 75% of users in your area.
+              Your environmental impact score
             </p>
             <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
               <div
-                className="bg-green-600 h-2 rounded-full"
+                className="bg-green-600 h-2 rounded-full transition-all duration-500"
                 style={{ width: `${greenScore}%` }}
               ></div>
             </div>
@@ -302,7 +320,7 @@ export default function DashboardPage() {
               recentActivities.map((activity) => (
                 <li 
                   key={activity.id} 
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center">
                     {getActivityIcon(activity.category)}
@@ -315,7 +333,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-gray-800">
-                      {activity.carbon_saved} kg CO₂
+                      {parseFloat(activity.carbon_saved).toFixed(2)} kg CO₂
                     </p>
                     <p className="text-xs text-gray-500">
                       {formatDate(activity.created_at)}
@@ -343,11 +361,16 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p className="font-medium mb-1">
-                  Your Green Score rose by 10 points!
+                  {recentActivities.length > 0 
+                    ? `Great job! You've logged ${recentActivities.length} activities.`
+                    : 'Start logging activities to get personalized insights!'
+                  }
                 </p>
                 <p className="text-sm text-gray-600">
-                  Great job reducing your transportation emissions by switching
-                  to public transit.
+                  {recentActivities.length > 0
+                    ? 'Keep up the good work reducing your carbon footprint.'
+                    : 'Track your daily activities to see your environmental impact.'
+                  }
                 </p>
               </div>
             </div>
