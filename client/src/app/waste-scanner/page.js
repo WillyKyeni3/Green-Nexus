@@ -27,8 +27,8 @@ const WasteScannerPage = () => {
     setRecentlyScannedLoading(true);
     setRecentlyScannedError(null);
     try {
-      // Adjust the URL if your backend runs on a different port
-      const response = await fetch('http://localhost:5000/api/waste-scanner/recent', {
+      // Use the environment variable for the backend URL
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/waste-scanner/recent`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -117,8 +117,8 @@ const WasteScannerPage = () => {
       const formData = new FormData();
       formData.append('image', originalFile);
 
-      // Adjust the URL if your backend runs on a different port
-      const response = await fetch('http://localhost:5000/api/waste-scanner/upload', {
+      // Use the environment variable for the backend URL
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/waste-scanner/upload`, {
         method: 'POST',
         body: formData,
       });

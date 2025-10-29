@@ -77,8 +77,8 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'LOGIN_START' });
 
     try {
-      // CHANGE THIS: Use the full URL to your Flask backend
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      // Use the environment variable for the backend URL
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,8 +116,8 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'LOGIN_START' }); // Reuse loading state
 
     try {
-      // CHANGE THIS: Use the full URL to your Flask backend
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      // Use the environment variable for the backend URL
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
