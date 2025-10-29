@@ -1,3 +1,4 @@
+// client/src/app/activity/page.js
 'use client';
 import React, { useState, useEffect } from 'react';
 import {
@@ -8,10 +9,12 @@ import {
   X,
 } from 'lucide-react';
 import Card from '../components/common/Card';
+import { useAuth } from '../../context/AuthContext'; // Import useAuth hook
 
 const ActivityPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true); // Add loading state for auth
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   
@@ -36,14 +39,49 @@ const ActivityPage = () => {
   const [weeklyStats, setWeeklyStats] = useState(null);
   const [categories, setCategories] = useState(['Transport', 'Food', 'Purchases']);
   
-  const userId = 1; // Replace with actual user ID from auth context
+  // Use the auth context to get the current user
+  const { user, isClient, loading: authContextLoading } = useAuth(); // Get loading state from context if available
 
-  // Fetch activity types on mount
+  // Derive userId from the authenticated user object
+  // Prioritize user.id from context, fallback to localStorage only if context is still loading
+  const userId = user?.id || (isClient && typeof window !== 'undefined' ? parseInt(localStorage.getItem('user_id')) || 1 : 1);
+
+  // Check authentication status based on context state
+  const isAuthenticated = isClient && user && user.id; // Ensure isClient is true and user object exists with id
+
+  // Effect to handle initial auth check and loading state
   useEffect(() => {
-    fetchActivityTypes();
-    fetchActivities();
-    fetchWeeklyStats();
-  }, []);
+    if (!isClient) {
+      // If not on client, don't run yet
+      setAuthLoading(true);
+      return;
+    }
+
+    // Check if user data is available in context or localStorage
+    if (isClient && (user || localStorage.getItem('user'))) {
+      setAuthLoading(false); // Stop auth loading once we know the status
+      if (!isAuthenticated) {
+         // This case might happen if user data exists in localStorage but not yet loaded into context
+         // We could try to load from localStorage here, but it's better to wait for context
+         // Let the other effects handle the data fetching once context is ready
+      }
+    } else if (isClient) {
+      // Explicitly not logged in after client-side initialization
+      setAuthLoading(false);
+      setError('User not authenticated. Please log in.');
+    }
+  }, [isClient, user, isAuthenticated]); // Depend on auth state variables
+
+  // Fetch activity types on mount, only if authenticated
+  useEffect(() => {
+    if (isAuthenticated) { // Only run if user is authenticated
+      fetchActivityTypes();
+      fetchActivities();
+      fetchWeeklyStats();
+    } else if (authLoading === false) { // Only show error if auth loading is complete and user is not authenticated
+       setError('User not authenticated. Please log in.');
+    }
+  }, [isAuthenticated, authLoading]); // Add dependencies
 
   // Fetch available activity types
   const fetchActivityTypes = async () => {
@@ -63,6 +101,11 @@ const ActivityPage = () => {
 
   // Fetch user activities
   const fetchActivities = async () => {
+    if (!isAuthenticated || !userId || userId === 1) { // Check authentication status
+      setError('User not authenticated. Please log in.');
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/activities/${userId}?limit=10`);
@@ -95,6 +138,10 @@ const ActivityPage = () => {
 
   // Fetch weekly statistics
   const fetchWeeklyStats = async () => {
+    if (!isAuthenticated || !userId || userId === 1) { // Check authentication status
+      setError('User not authenticated. Please log in.');
+      return;
+    }
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/activities/weekly-stats/${userId}`);
       if (!response.ok) throw new Error('Failed to fetch weekly stats');
@@ -151,6 +198,11 @@ const ActivityPage = () => {
 
     if (isNaN(quantity) || parseFloat(quantity) <= 0) {
       setError('Quantity must be a positive number');
+      return;
+    }
+
+    if (!isAuthenticated || !userId || userId === 1) { // Check authentication status
+      setError('User not authenticated. Please log in.');
       return;
     }
 
@@ -250,6 +302,11 @@ const ActivityPage = () => {
       return;
     }
 
+    if (!isAuthenticated || !userId || userId === 1) { // Check authentication status
+      setError('User not authenticated. Please log in.');
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -306,6 +363,11 @@ const ActivityPage = () => {
   const handleDeleteActivity = async (activityId) => {
     if (!window.confirm('Are you sure you want to delete this activity?')) return;
 
+    if (!isAuthenticated || !userId || userId === 1) { // Check authentication status
+      setError('User not authenticated. Please log in.');
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/activities/${userId}/${activityId}`, {
@@ -342,6 +404,16 @@ const ActivityPage = () => {
       return dayData ? Math.min(dayData.count * 20 + 40, 150) : 40;
     });
   };
+
+  // Show loading state while checking auth
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader className="animate-spin text-green-600" size={32} />
+        <span className="ml-2 text-gray-600">Checking authentication...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
