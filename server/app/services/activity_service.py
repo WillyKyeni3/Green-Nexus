@@ -63,6 +63,67 @@ class ActivityService:
             return {'error': str(e)}, 500
     
     @staticmethod
+    def update_activity(user_id, activity_id, activity_type, quantity, unit, notes=None):
+        """
+        Update an existing activity
+        
+        Args:
+            user_id: ID of the user
+            activity_id: ID of the activity to update
+            activity_type: Type of activity (e.g., 'Cycling', 'Public Transit')
+            quantity: Amount/distance of activity
+            unit: Unit of measurement
+            notes: Optional notes
+            
+        Returns:
+            Updated activity object or error dict
+        """
+        try:
+            # Find the activity
+            activity = Activity.query.filter_by(
+                id=activity_id,
+                user_id=user_id
+            ).first()
+            
+            if not activity:
+                return {'error': 'Activity not found'}, 404
+            
+            # Validate activity type
+            if activity_type not in ACTIVITY_CONVERSIONS:
+                return {
+                    'error': f'Invalid activity type: {activity_type}',
+                    'valid_types': list(ACTIVITY_CONVERSIONS.keys())
+                }, 400
+            
+            # Get conversion data
+            conversion = ACTIVITY_CONVERSIONS[activity_type]
+            
+            # Validate unit
+            if unit != conversion['unit']:
+                return {
+                    'error': f'Invalid unit for {activity_type}. Expected {conversion["unit"]}, got {unit}',
+                }, 400
+            
+            # Calculate new carbon saved
+            new_carbon_saved = float(quantity) * conversion['conversion']
+            
+            # Update activity
+            activity.activity_type = activity_type
+            activity.quantity = float(quantity)
+            activity.unit = unit
+            activity.carbon_saved = new_carbon_saved
+            activity.notes = notes
+            activity.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            
+            return activity.to_dict(), 200
+            
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 500
+    
+    @staticmethod
     def get_user_activities(user_id, limit=10, category=None):
         """
         Get activities for a user
