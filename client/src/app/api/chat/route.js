@@ -6,7 +6,7 @@ export async function POST(request) {
     const { message } = await request.json();
 
     // Forward to Python backend
-    const backendResponse = await fetch('http://localhost:5000/api/chat', {
+    const backendResponse = await fetch('https://green-nexus-1.onrender.com/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message }),

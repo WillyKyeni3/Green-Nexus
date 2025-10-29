@@ -94,7 +94,7 @@ export default function DashboardPage() {
         
         console.log('Fetching activities for logged-in user:', userId); // Debug log
         
-        const API_BASE = 'http://localhost:5000';
+        const API_BASE = 'https://green-nexus-1.onrender.com/';
         const response = await fetch(`${API_BASE}/api/activities/${userId}`);
         
         if (!response.ok) {
