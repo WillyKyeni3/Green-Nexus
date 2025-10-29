@@ -20,6 +20,7 @@ import {
   CarIcon,
   ShoppingBagIcon,
 } from 'lucide-react';
+import { generateAISuggestion } from '../components/lib/aiSuggestions'; // Import the shared utility
 
 ChartJS.register(
   CategoryScale,
@@ -47,6 +48,7 @@ export default function DashboardPage() {
   const [greenScore, setGreenScore] = useState(0);
   const [monthlyData, setMonthlyData] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
+  const [aiSuggestion, setAiSuggestion] = useState({ title: '', message: '' }); // State for AI suggestion
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -88,18 +90,28 @@ export default function DashboardPage() {
             .slice(0, 5);
           setRecentActivities(recent);
           console.log('Recent activities:', recent); // Debug log
+          
+          // Generate AI suggestion based on all activities
+          const suggestion = generateAISuggestion(recent);
+          setAiSuggestion(suggestion);
         } else if (Array.isArray(data) && data.length === 0) {
           console.log('No activities found for this user');
           setRecentActivities([]);
           setGreenScore(0);
           setMonthlyData([]);
+          const suggestion = generateAISuggestion([]);
+          setAiSuggestion(suggestion);
         } else {
           console.warn('Unexpected data format:', data);
           setError('Received unexpected data format from server');
+          const suggestion = generateAISuggestion([]);
+          setAiSuggestion(suggestion);
         }
       } catch (error) {
         console.error('Error fetching activities:', error);
         setError(error.message || 'Failed to load activities');
+        const suggestion = generateAISuggestion([]);
+        setAiSuggestion(suggestion);
       } finally {
         setLoading(false);
       }
@@ -354,52 +366,24 @@ export default function DashboardPage() {
               AI Insights
             </h3>
           </div>
+          {/* Dynamic AI Feedback Card */}
           <div className="p-4 bg-green-50 rounded-lg border border-green-200 mb-4">
             <div className="flex items-start">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white flex items-center justify-center mr-3">
                 <span className="font-bold text-green-600">AI</span>
               </div>
               <div>
-                <p className="font-medium mb-1">
-                  {recentActivities.length > 0 
-                    ? `Great job! You've logged ${recentActivities.length} activities.`
-                    : 'Start logging activities to get personalized insights!'
-                  }
-                </p>
-                <p className="text-sm text-gray-600">
-                  {recentActivities.length > 0
-                    ? 'Keep up the good work reducing your carbon footprint.'
-                    : 'Track your daily activities to see your environmental impact.'
-                  }
-                </p>
+                <p className="font-medium mb-1">{aiSuggestion.title}</p>
+                <p className="text-sm text-gray-600">{aiSuggestion.message}</p>
               </div>
             </div>
           </div>
-          <div className="p-4 bg-gray-50 rounded-lg mb-4">
-            <h4 className="font-medium mb-2">Improvement Opportunities</h4>
-            <ul className="space-y-2">
-              <li className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
-                  <span className="text-xs font-bold text-gray-800">1</span>
-                </div>
-                <p className="text-sm">
-                  Switch to biking for trips under 3 miles
-                </p>
-              </li>
-              <li className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
-                  <span className="text-xs font-bold text-gray-800">2</span>
-                </div>
-                <p className="text-sm">
-                  Reduce meat consumption by 1 meal per week
-                </p>
-              </li>
-              <li className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
-                  <span className="text-xs font-bold text-gray-800">3</span>
-                </div>
-                <p className="text-sm">Try shopping at local farmers market</p>
-              </li>
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <h4 className="font-medium mb-2">Quick Wins</h4>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li>• Take a 5-minute shower instead of 10</li>
+              <li>• Unplug devices when not in use</li>
+              <li>• Use a reusable water bottle</li>
             </ul>
           </div>
         </Card>
