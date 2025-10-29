@@ -5,7 +5,7 @@ from app import create_app
 
 load_dotenv()
 
-config_name = os.getenv('FLASK_CONFIG') or 'development'
+config_name = os.getenv('FLASK_CONFIG' , 'production') or 'development'
 app = create_app(config_name=config_name)
 
 if __name__ == '__main__':
