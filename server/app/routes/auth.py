@@ -12,18 +12,23 @@ def register():
     Endpoint for user registration.
     Expects JSON: { "name": "...", "email": "...", "password": "..." }
     """
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    if not data:
-        return jsonify({"error": "Request body must be JSON."}), 400
+        if not data:
+            return jsonify({"error": "Request body must be JSON."}), 400
 
-    name = data.get('name')
-    email = data.get('email')
-    password = data.get('password')
+        name = data.get('name')
+        email = data.get('email')
+        password = data.get('password')
 
-    # Call the service function
-    response, status_code = register_user(name, email, password)
-    return jsonify(response), status_code
+        # Call the service function
+        response, status_code = register_user(name, email, password)
+        return jsonify(response), status_code
+    except Exception as e:
+        # Log the error and return a JSON response
+        print(f"Registration route error: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred during registration.", "details": str(e)}), 500
 
 
 @auth_bp.route('/login', methods=['POST'])
@@ -33,14 +38,19 @@ def login():
     Expects JSON: { "email": "...", "password": "..." }
     Returns JSON: { "message": "...", "access_token": "...", "user": {...} } on success
     """
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    if not data:
-        return jsonify({"error": "Request body must be JSON."}), 400
+        if not data:
+            return jsonify({"error": "Request body must be JSON."}), 400
 
-    email = data.get('email')
-    password = data.get('password')
+        email = data.get('email')
+        password = data.get('password')
 
-    # Call the service function
-    response, status_code = login_user(email, password)
-    return jsonify(response), status_code
+        # Call the service function
+        response, status_code = login_user(email, password)
+        return jsonify(response), status_code
+    except Exception as e:
+        # Log the error and return a JSON response
+        print(f"Login route error: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred during login.", "details": str(e)}), 500

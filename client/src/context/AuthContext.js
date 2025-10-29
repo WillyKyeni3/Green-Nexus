@@ -86,7 +86,18 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json(); // Attempt to parse JSON
+      // Check content type before parsing
+      const contentType = response.headers.get('content-type');
+      let data;
+      
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        // Server returned non-JSON (likely HTML error page)
+        const text = await response.text();
+        console.error('Server returned non-JSON response:', text.substring(0, 200));
+        throw new Error('Server error: Invalid response format');
+      }
 
       if (response.ok) {
         const { access_token, user } = data;
@@ -98,12 +109,13 @@ export const AuthProvider = ({ children }) => {
       } else {
         // Server responded with an error status (e.g., 400, 401, 500)
         // data should contain the error message from your backend
-        dispatch({ type: 'LOGIN_FAILURE', payload: data.error || 'Login failed' });
+        dispatch({ type: 'LOGIN_FAILURE', payload: data.error || data.message || 'Login failed' });
       }
     } catch (error) {
       console.error('Login error:', error);
-      // This handles network errors (e.g., server down, fetch failed)
-      dispatch({ type: 'LOGIN_FAILURE', payload: 'Network error or server unavailable' });
+      // This handles network errors (e.g., server down, fetch failed) and JSON parsing errors
+      const errorMessage = error.message || 'Network error or server unavailable';
+      dispatch({ type: 'LOGIN_FAILURE', payload: errorMessage });
     }
   };
 
@@ -125,7 +137,18 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ name, email, password }),
       });
 
-      const data = await response.json(); // Attempt to parse JSON
+      // Check content type before parsing
+      const contentType = response.headers.get('content-type');
+      let data;
+      
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        // Server returned non-JSON (likely HTML error page)
+        const text = await response.text();
+        console.error('Server returned non-JSON response:', text.substring(0, 200));
+        throw new Error('Server error: Invalid response format');
+      }
 
       if (response.ok) { 
         // CHANGE: Update how the user data is handled here
@@ -137,12 +160,13 @@ export const AuthProvider = ({ children }) => {
         router.push('/Dashboard'); // Navigate to dashboard
       } else {
         // Server responded with an error status
-        dispatch({ type: 'LOGIN_FAILURE', payload: data.error || 'Registration failed' });
+        dispatch({ type: 'LOGIN_FAILURE', payload: data.error || data.message || 'Registration failed' });
       }
     } catch (error) {
       console.error('Registration error:', error);
-      // This handles network errors
-      dispatch({ type: 'LOGIN_FAILURE', payload: 'Network error or server unavailable' });
+      // This handles network errors and JSON parsing errors
+      const errorMessage = error.message || 'Network error or server unavailable';
+      dispatch({ type: 'LOGIN_FAILURE', payload: errorMessage });
     }
   };
 

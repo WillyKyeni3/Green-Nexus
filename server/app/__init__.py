@@ -109,6 +109,37 @@ def create_app(config_name='development'):
 
     print("Blueprint registration complete!\n")
 
+    # -------------------------- ERROR HANDLERS --------------------------
+    @app.errorhandler(400)
+    def bad_request(error):
+        return {"error": "Bad request", "message": str(error)}, 400
+
+    @app.errorhandler(401)
+    def unauthorized(error):
+        return {"error": "Unauthorized", "message": str(error)}, 401
+
+    @app.errorhandler(403)
+    def forbidden(error):
+        return {"error": "Forbidden", "message": str(error)}, 403
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return {"error": "Not found", "message": str(error)}, 404
+
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        return {"error": "Method not allowed", "message": str(error)}, 405
+
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        app.logger.error(f"Internal server error: {str(error)}")
+        return {"error": "Internal server error", "message": "An unexpected error occurred. Please try again later."}, 500
+
+    @app.errorhandler(Exception)
+    def handle_exception(error):
+        app.logger.error(f"Unhandled exception: {str(error)}", exc_info=True)
+        return {"error": "Internal server error", "message": "An unexpected error occurred. Please try again later."}, 500
+
     # -------------------------- ROOT ROUTE --------------------------
     @app.route('/')
     def welcome():

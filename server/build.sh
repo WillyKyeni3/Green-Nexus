@@ -12,3 +12,6 @@ apt-get install -y --no-install-recommends \
 
 pip install --upgrade pip
 pip install -r requirements.txt
+
+# Run database migrations
+flask db upgrade
