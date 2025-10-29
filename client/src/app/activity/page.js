@@ -44,10 +44,27 @@ const ActivityPage = () => {
 
   // Derive userId from the authenticated user object
   // Prioritize user.id from context, fallback to localStorage only if context is still loading
-  const userId = user?.id || (isClient && typeof window !== 'undefined' ? parseInt(localStorage.getItem('user_id')) || 1 : 1);
+  const getUserId = () => {
+    if (user?.id) return user.id;
+    
+    if (isClient && typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          return parsedUser.id;
+        } catch (e) {
+          console.error('Error parsing user from localStorage:', e);
+        }
+      }
+    }
+    return null;
+  };
+
+  const userId = getUserId();
 
   // Check authentication status based on context state
-  const isAuthenticated = isClient && user && user.id; // Ensure isClient is true and user object exists with id
+  const isAuthenticated = isClient && userId !== null; // User is authenticated if we have a valid userId
 
   // Effect to handle initial auth check and loading state
   useEffect(() => {
@@ -101,7 +118,7 @@ const ActivityPage = () => {
 
   // Fetch user activities
   const fetchActivities = async () => {
-    if (!isAuthenticated || !userId || userId === 1) { // Check authentication status
+    if (!isAuthenticated || !userId) { // Check authentication status
       setError('User not authenticated. Please log in.');
       return;
     }
@@ -138,7 +155,7 @@ const ActivityPage = () => {
 
   // Fetch weekly statistics
   const fetchWeeklyStats = async () => {
-    if (!isAuthenticated || !userId || userId === 1) { // Check authentication status
+    if (!isAuthenticated || !userId) { // Check authentication status
       setError('User not authenticated. Please log in.');
       return;
     }
@@ -201,7 +218,7 @@ const ActivityPage = () => {
       return;
     }
 
-    if (!isAuthenticated || !userId || userId === 1) { // Check authentication status
+    if (!isAuthenticated || !userId) { // Check authentication status
       setError('User not authenticated. Please log in.');
       return;
     }
@@ -302,7 +319,7 @@ const ActivityPage = () => {
       return;
     }
 
-    if (!isAuthenticated || !userId || userId === 1) { // Check authentication status
+    if (!isAuthenticated || !userId) { // Check authentication status
       setError('User not authenticated. Please log in.');
       return;
     }
@@ -363,7 +380,7 @@ const ActivityPage = () => {
   const handleDeleteActivity = async (activityId) => {
     if (!window.confirm('Are you sure you want to delete this activity?')) return;
 
-    if (!isAuthenticated || !userId || userId === 1) { // Check authentication status
+    if (!isAuthenticated || !userId) { // Check authentication status
       setError('User not authenticated. Please log in.');
       return;
     }
