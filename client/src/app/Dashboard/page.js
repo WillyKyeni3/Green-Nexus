@@ -54,11 +54,45 @@ export default function DashboardPage() {
         setLoading(true);
         setError(null);
         
-        // Get user_id from localStorage
+        // Get user data from localStorage
+        const storedUser = localStorage.getItem('user');
         const storedUserId = localStorage.getItem('user_id');
-        const userId = storedUserId ? parseInt(storedUserId) : 1;
         
-        console.log('Fetching activities for user:', userId); // Debug log
+        // Check if user is logged in
+        if (!storedUser && !storedUserId) {
+          console.log('No user logged in, redirecting to login');
+          setError('Please log in to view your activities');
+          setLoading(false);
+          // Optionally redirect to login
+          // window.location.href = '/login';
+          return;
+        }
+        
+        // Get user ID from either source
+        let userId;
+        if (storedUserId) {
+          userId = parseInt(storedUserId);
+        } else if (storedUser) {
+          try {
+            const userData = JSON.parse(storedUser);
+            userId = userData.id;
+            // Store user_id for future use
+            localStorage.setItem('user_id', userId.toString());
+          } catch (e) {
+            console.error('Error parsing user data:', e);
+            setError('Error loading user data');
+            setLoading(false);
+            return;
+          }
+        }
+        
+        if (!userId) {
+          setError('User ID not found. Please log in again.');
+          setLoading(false);
+          return;
+        }
+        
+        console.log('Fetching activities for logged-in user:', userId); // Debug log
         
         const API_BASE = 'http://localhost:5000';
         const response = await fetch(`${API_BASE}/api/activities/${userId}`);
@@ -362,7 +396,7 @@ export default function DashboardPage() {
               <div>
                 <p className="font-medium mb-1">
                   {recentActivities.length > 0 
-                    ? `Great job! You've logged ${recentActivities.length} activities.`
+                    ? `Great job! You've logged ${recentActivities.length} recent activities.`
                     : 'Start logging activities to get personalized insights!'
                   }
                 </p>
