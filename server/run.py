@@ -1,22 +1,26 @@
-# server/run.py
 import os
 from dotenv import load_dotenv
-from app import create_app, db  # ← Import db for table creation
+from app import create_app, db
 
 load_dotenv()
 
-# === CONFIG ===
-# Use FLASK_CONFIG if set, fallback to 'production' in Render
-config_name = os.getenv('FLASK_CONFIG', 'production')
-app = create_app(config_name=config_name)
+# === CREATE APP (Gunicorn imports: run:app) ===
+app = create_app(os.getenv('FLASK_CONFIG', 'production'))
 
-# === CREATE DATABASE TABLES ON STARTUP (SAFE FOR GUNICORN) ===
+# === CREATE TABLES ONLY IF DB URL IS VALID (PREVENTS CRASH ON RENDER) ===
 with app.app_context():
-    db.create_all()
-    print("Database tables ensured (created if not exists)")
+    db_url = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    if db_url and (db_url.startswith('sqlite://') or 'postgres' in db_url):
+        try:
+            db.create_all()
+            print("Database tables created (if not exists)")
+        except Exception as e:
+            print(f"DB creation failed (Render cold start): {e}")
+    else:
+        print("No valid DATABASE_URL — skipping table creation")
 
 # === LOCAL DEV ONLY ===
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    debug = config_name != 'production'  # Only debug in development
+    debug = os.getenv('FLASK_CONFIG') != 'production'
     app.run(host='0.0.0.0', port=port, debug=debug)

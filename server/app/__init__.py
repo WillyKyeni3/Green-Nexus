@@ -24,12 +24,11 @@ def create_app(config_name='development'):
     app = Flask(__name__)
 
     # -------------------------- CONFIG --------------------------
-    # Load from config.py (must exist in server/)
     try:
         from config import Config
         app.config.from_object(Config)
-    except ImportError as e:
-        print("config.py not found! Using fallback config.")
+    except ImportError:
+        print("config.py not found! Using fallback.")
         class FallbackConfig:
             SECRET_KEY = os.getenv('SECRET_KEY') or 'fallback-secret'
             JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY') or 'fallback-jwt'
@@ -55,8 +54,8 @@ def create_app(config_name='development'):
                 "http://localhost:3001",
                 "http://127.0.0.1:3000",
                 "http://127.0.0.1:3001",
-                "https://*.vercel.app",  # Allow Vercel
-                "*"  # TEMP: Remove in production
+                "https://*.vercel.app",
+                "*"
             ],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
@@ -71,9 +70,9 @@ def create_app(config_name='development'):
     def _register(bp, prefix, name):
         try:
             app.register_blueprint(bp, url_prefix=prefix)
-            print(f"{name} API registered at {prefix}")
+            print(f"{name} API → {prefix}")
         except Exception as e:
-            print(f"{name} blueprint failed: {e}")
+            print(f"{name} failed: {e}")
 
     # Auth
     try:
@@ -94,7 +93,7 @@ def create_app(config_name='development'):
         from app.routes.waste_scanner import waste_scanner_bp
         _register(waste_scanner_bp, '/api/waste-scanner', 'Waste Scanner')
     except ImportError:
-        print("Waste Scanner blueprint not configured yet")
+        print("Waste Scanner not configured")
 
     # Marketplace
     try:
@@ -102,7 +101,7 @@ def create_app(config_name='development'):
         app.register_blueprint(marketplace_bp)
         print("Marketplace API registered")
     except ImportError as e:
-        print(f"Marketplace blueprint missing: {e}")
+        print(f"Marketplace missing: {e}")
 
     print("Blueprint registration complete!\n")
 
@@ -110,9 +109,8 @@ def create_app(config_name='development'):
     @app.route('/')
     def welcome():
         return {
-            "message": "Welcome to Green-Nexus Backend!",
+            "message": "Green-Nexus Backend LIVE",
             "version": "1.0.0",
-            "status": "LIVE",
             "endpoints": {
                 "Auth": "/api/auth/*",
                 "Activities": "/api/activities/*",
@@ -121,8 +119,5 @@ def create_app(config_name='development'):
             }
         }, 200
 
-    # -------------------------- DB INIT (MOVED TO run.py) --------------------------
-    # DO NOT USE @app.before_first_request — it crashes Gunicorn on startup
-    # Tables are created in run.py after app context
-
+    # NO @before_first_request — MOVED TO run.py
     return app
