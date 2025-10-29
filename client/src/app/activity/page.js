@@ -5,6 +5,7 @@ import {
   ChevronDownIcon,
   Loader,
   AlertCircle,
+  X,
 } from 'lucide-react';
 import Card from '../components/common/Card';
 
@@ -20,6 +21,14 @@ const ActivityPage = () => {
   const [unit, setUnit] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Food');
   const [notes, setNotes] = useState('');
+  
+  // Edit state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingActivityId, setEditingActivityId] = useState(null);
+  const [editActivityType, setEditActivityType] = useState('');
+  const [editQuantity, setEditQuantity] = useState('');
+  const [editUnit, setEditUnit] = useState('');
+  const [editNotes, setEditNotes] = useState('');
   
   // Data state
   const [activities, setActivities] = useState([]);
@@ -68,6 +77,10 @@ const ActivityPage = () => {
         date: new Date(activity.created_at).toLocaleDateString(),
         impact: `${activity.carbon_saved.toFixed(2)} kg CO₂`,
         quantity: `${activity.quantity} ${activity.unit}`,
+        activityType: activity.activity_type,
+        quantityValue: activity.quantity,
+        unitValue: activity.unit,
+        notesValue: activity.notes || '',
       }));
       
       setActivities(formattedActivities);
@@ -115,6 +128,15 @@ const ActivityPage = () => {
     // Auto-set unit based on activity type
     const autoUnit = getUnitForActivityType(type);
     setUnit(autoUnit);
+  };
+
+  // Handle edit activity type change
+  const handleEditActivityTypeChange = (e) => {
+    const type = e.target.value;
+    setEditActivityType(type);
+    // Auto-set unit based on activity type
+    const autoUnit = getUnitForActivityType(type);
+    setEditUnit(autoUnit);
   };
 
   // Handle form submission
@@ -193,6 +215,93 @@ const ActivityPage = () => {
     }
   };
 
+  // Open edit modal
+  const handleEditActivity = (activity) => {
+    setEditingActivityId(activity.id);
+    setEditActivityType(activity.activityType);
+    setEditQuantity(activity.quantityValue.toString());
+    setEditUnit(activity.unitValue);
+    setEditNotes(activity.notesValue);
+    setIsEditModalOpen(true);
+  };
+
+  // Close edit modal
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingActivityId(null);
+    setEditActivityType('');
+    setEditQuantity('');
+    setEditUnit('');
+    setEditNotes('');
+  };
+
+  // Handle edit form submission
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate form
+    if (!editActivityType || !editQuantity || !editUnit) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    if (isNaN(editQuantity) || parseFloat(editQuantity) <= 0) {
+      setError('Quantity must be a positive number');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+
+      console.log('📤 Updating activity:', {
+        activity_type: editActivityType,
+        quantity: parseFloat(editQuantity),
+        unit: editUnit,
+        notes: editNotes,
+      });
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/activities/${userId}/${editingActivityId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          activity_type: editActivityType,
+          quantity: parseFloat(editQuantity),
+          unit: editUnit,
+          notes: editNotes,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update activity');
+      }
+
+      console.log('✅ Activity updated successfully:', data);
+
+      // Show success message
+      setSuccess(`✅ Activity updated! New impact: ${data.carbon_saved.toFixed(2)} kg CO₂`);
+
+      // Close modal and refresh data
+      closeEditModal();
+      setTimeout(() => {
+        fetchActivities();
+        fetchWeeklyStats();
+        setSuccess(null);
+      }, 2000);
+
+    } catch (err) {
+      console.error('❌ Error:', err);
+      setError(err.message || 'Failed to update activity');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Delete activity
   const handleDeleteActivity = async (activityId) => {
     if (!window.confirm('Are you sure you want to delete this activity?')) return;
@@ -248,7 +357,7 @@ const ActivityPage = () => {
 
             {/* Error Alert */}
             {error && (
-              <div className="mb-4 p-4 bg-red-501 border border-red-200 rounded-lg flex items-center gap-3">
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
                 <AlertCircle width={20} height={20} className="text-red-600" />
                 <span className="text-red-800">{error}</span>
               </div>
@@ -404,7 +513,7 @@ const ActivityPage = () => {
                               <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Quantity</th>
                               <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Date</th>
                               <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Impact</th>
-                              <th className="px-4 py-3 text-center text-sm font-medium text-gray-900">Action</th>
+                              <th className="px-4 py-3 text-center text-sm font-medium text-gray-900">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -415,13 +524,23 @@ const ActivityPage = () => {
                                 <td className="px-4 py-3 text-sm text-gray-600">{activity.date}</td>
                                 <td className="px-4 py-3 text-sm text-green-600 font-medium">{activity.impact}</td>
                                 <td className="px-4 py-3 text-center">
-                                  <button
-                                    onClick={() => handleDeleteActivity(activity.id)}
-                                    className="text-red-600 hover:text-red-700 hover:underline text-sm font-medium transition-colors disabled:opacity-50"
-                                    disabled={loading}
-                                  >
-                                    Delete
-                                  </button>
+                                  <div className="flex justify-center gap-3">
+                                    <button
+                                      onClick={() => handleEditActivity(activity)}
+                                      className="text-blue-600 hover:text-blue-700 hover:underline text-sm font-medium transition-colors disabled:opacity-50"
+                                      disabled={loading}
+                                    >
+                                      Edit
+                                    </button>
+                                    <span className="text-gray-300">|</span>
+                                    <button
+                                      onClick={() => handleDeleteActivity(activity.id)}
+                                      className="text-red-600 hover:text-red-700 hover:underline text-sm font-medium transition-colors disabled:opacity-50"
+                                      disabled={loading}
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
                                 </td>
                               </tr>
                             ))}
@@ -500,6 +619,121 @@ const ActivityPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Edit Activity Modal */}
+          {isEditModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <Card className="w-full max-w-md mx-4">
+                <div className="p-6">
+                  {/* Modal Header */}
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">Edit Activity</h3>
+                    <button
+                      onClick={closeEditModal}
+                      disabled={loading}
+                      className="text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                      <X width={24} height={24} />
+                    </button>
+                  </div>
+
+                  {/* Edit Form */}
+                  <form onSubmit={handleEditSubmit} className="space-y-4">
+                    {/* Activity Type */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 mb-2">
+                        Activity Type *
+                      </label>
+                      <select
+                        value={editActivityType}
+                        onChange={handleEditActivityTypeChange}
+                        className="w-full h-12 px-4 rounded-lg border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent hover:border-gray-300 transition-colors"
+                        disabled={loading}
+                      >
+                        <option value="">Select Activity Type</option>
+                        {activityTypes.map((type) => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Quantity/Distance */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 mb-2">
+                        Quantity/Distance *
+                      </label>
+                      <input
+                        type="number"
+                        value={editQuantity}
+                        onChange={(e) => setEditQuantity(e.target.value)}
+                        placeholder="Enter Quantity/Distance"
+                        step="0.01"
+                        min="0"
+                        className="w-full h-12 px-4 rounded-lg border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent hover:border-gray-300 transition-colors"
+                        disabled={loading}
+                      />
+                    </div>
+
+                    {/* Unit */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 mb-2">
+                        Unit *
+                      </label>
+                      <input
+                        type="text"
+                        value={editUnit}
+                        readOnly
+                        className="w-full h-12 px-4 rounded-lg border border-gray-200 text-gray-600 bg-gray-50 focus:outline-none"
+                        placeholder="Auto-set based on activity"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Unit is automatically set based on activity type</p>
+                    </div>
+
+                    {/* Notes */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 mb-2">
+                        Notes (Optional)
+                      </label>
+                      <textarea
+                        value={editNotes}
+                        onChange={(e) => setEditNotes(e.target.value)}
+                        placeholder="Add any notes about this activity..."
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent hover:border-gray-300 transition-colors resize-none"
+                        rows="3"
+                        disabled={loading}
+                      />
+                    </div>
+
+                    {/* Buttons */}
+                    <div className="flex justify-end gap-3 pt-4">
+                      <button
+                        type="button"
+                        onClick={closeEditModal}
+                        className="px-6 h-10 border border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm disabled:opacity-50"
+                        disabled={loading}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <>
+                            <Loader width={16} height={16} className="animate-spin" />
+                            Updating...
+                          </>
+                        ) : (
+                          'Update Activity'
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </Card>
+            </div>
+          )}
         </main>
       </div>
   
