@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   UploadIcon,
   ImageIcon,
@@ -17,7 +17,52 @@ const WasteScannerPage = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState(null);
   const [originalFile, setOriginalFile] = useState(null); // Added to store the original file
+  const [recentlyScanned, setRecentlyScanned] = useState([]);
+  const [recentlyScannedLoading, setRecentlyScannedLoading] = useState(false);
+  const [recentlyScannedError, setRecentlyScannedError] = useState(null);
   const fileInputRef = useRef(null);
+
+  // Function to fetch recently scanned items
+  const fetchRecentlyScanned = async () => {
+    setRecentlyScannedLoading(true);
+    setRecentlyScannedError(null);
+    try {
+      // Adjust the URL if your backend runs on a different port
+      const response = await fetch('http://localhost:5000/api/waste-scanner/recent', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json(); // Get the full response object
+
+      // Check if the response format matches what the backend sends
+      // Assuming backend returns { success: true, data: [...], count: ... }
+      if (result.success && Array.isArray(result.data)) {
+        // Access the 'data' array inside the result object
+        setRecentlyScanned(result.data.slice(0, 6)); // Limit to 6 items
+      } else {
+        // Handle unexpected response format
+        console.error("Unexpected response format:", result);
+        setRecentlyScannedError("Received unexpected data format from server.");
+      }
+    } catch (error) {
+      console.error('Error fetching recent scans:', error);
+      setRecentlyScannedError('Failed to load recent scans.');
+    } finally {
+      setRecentlyScannedLoading(false);
+    }
+  };
+
+  // Fetch recently scanned items on component mount
+  useEffect(() => {
+    fetchRecentlyScanned();
+  }, []);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -98,6 +143,13 @@ const WasteScannerPage = () => {
       };
 
       setResults(transformedResults);
+
+      // Refresh the recently scanned list after a successful analysis
+      // Add a small delay to allow the backend to process and store the new item
+      setTimeout(() => {
+        fetchRecentlyScanned();
+      }, 1000); // 1 second delay
+
     } catch (error) {
       console.error('Analysis error:', error);
       alert(`Analysis failed: ${error.message}`);
@@ -113,6 +165,30 @@ const WasteScannerPage = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  // Helper function to get recyclability status text and color
+  // Now handles the string values returned by the backend
+  const getRecyclabilityInfo = (recyclabilityString) => {
+    if (recyclabilityString && recyclabilityString.toLowerCase().includes('recyclable')) {
+      return { text: 'Recyclable', color: 'bg-primary-light text-primary' };
+    } else if (recyclabilityString && recyclabilityString.toLowerCase().includes('non')) { // Covers "Non-recyclable"
+      return { text: 'Not Recyclable', color: 'bg-red-100 text-red-600' };
+    } else {
+      return { text: recyclabilityString || 'Unknown', color: 'bg-gray-100 text-gray-600' };
+    }
+  };
+
+  // Helper function to format the date
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Unknown Date';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
@@ -293,6 +369,86 @@ const WasteScannerPage = () => {
                   {isAnalyzing ? 'Analyzing...' : 'Analyze Image'}
                 </Button>
               )}
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Recently Scanned Items Card */}
+      <div className="mt-8">
+        <Card>
+          <div className="mb-4">
+            <h3 className="text-lg font-medium text-primary-dark">Recently Scanned Items</h3>
+            <p className="text-sm text-gray-600">View your previous waste analysis results.</p>
+          </div>
+
+          {recentlyScannedLoading ? (
+            <div className="flex justify-center py-8">
+              <svg
+                className="animate-spin h-8 w-8 text-primary"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            </div>
+          ) : recentlyScannedError ? (
+            <div className="text-center py-4 text-red-500">
+              {recentlyScannedError}
+            </div>
+          ) : recentlyScanned.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No scanned items yet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {recentlyScanned.map((item, index) => {
+                const recyclabilityInfo = getRecyclabilityInfo(item.recyclability); // Now handles string values like "Recyclable", "Non-recyclable"
+                return (
+                  <div key={item.id || index} className="border border-neutral-gray rounded-lg p-4 hover:shadow-md transition-shadow">
+                    {/* Image - Currently, the backend doesn't return the full image URL */}
+                    <div className="mb-3">
+                      {/* The backend returns 'filepath' which is server-side. You might need to serve these images via a static route. */}
+                      {/* For now, show a placeholder */}
+                      <div className="w-full h-32 flex items-center justify-center bg-gray-100 rounded-md">
+                        <ImageIcon size={32} className="text-gray-400" />
+                      </div>
+                      {/* Optional: If you serve images via a route like http://localhost:5000/uploads/<filename>, you could use: */}
+                      {/* <img
+                        src={`http://localhost:5000/uploads/${item.filename}`} // Adjust base URL and path as needed
+                        alt={`Scanned item ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-md"
+                      /> */}
+                    </div>
+
+                    {/* Waste Type */}
+                    <h4 className="font-medium text-gray-900 truncate" title={item.waste_type || 'Unknown'}>
+                      {item.waste_type || 'Unknown Waste Type'}
+                    </h4>
+
+                    {/* Recyclability Status - Using the updated helper */}
+                    <div className={`mt-1 px-2 py-1 rounded-full text-xs font-medium inline-flex items-center ${recyclabilityInfo.color}`}>
+                      {recyclabilityInfo.text}
+                    </div>
+
+                    {/* Material Type */}
+                    <p className="text-sm text-gray-600 mt-1 truncate" title={item.material_composition || 'Unknown'}>
+                      Material: {item.material_composition || 'Unknown'}
+                    </p>
+
+                    {/* Date */}
+                    <p className="text-xs text-gray-500 mt-2">
+                      Scanned: {formatDate(item.created_at)}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           )}
         </Card>
