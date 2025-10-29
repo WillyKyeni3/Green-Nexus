@@ -1,22 +1,23 @@
-# server/app/__init__.py
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 
 # ----------------------------------------------------------------------
 # Extensions (global)
 # ----------------------------------------------------------------------
 db = SQLAlchemy()
 jwt = JWTManager()
+migrate = Migrate()  # ✅ define migrate globally for flask db commands
 
 # ----------------------------------------------------------------------
-# IMPORT MODELS (so SQLAlchemy registers tables)
+# Import models (SQLAlchemy must see them)
 # ----------------------------------------------------------------------
 from app.models.user import User
 from app.models.activity import Activity
-# from app.models.waste_item import WasteItem   # uncomment when ready
+# from app.models.waste_item import WasteItem
 # from app.models.product import Product
 
 
@@ -29,6 +30,7 @@ def create_app(config_name='development'):
         app.config.from_object(Config)
     except ImportError:
         print("config.py not found! Using fallback.")
+
         class FallbackConfig:
             SECRET_KEY = os.getenv('SECRET_KEY') or 'fallback-secret'
             JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY') or 'fallback-jwt'
@@ -39,10 +41,12 @@ def create_app(config_name='development'):
             SQLALCHEMY_DATABASE_URI = db_url or 'sqlite:///instance/greennexus.db'
             UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
             os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
         app.config.from_object(FallbackConfig)
 
     # -------------------------- EXTENSIONS --------------------------
     db.init_app(app)
+    migrate.init_app(app, db)  # ✅ initialize globally defined migrate here
     jwt.init_app(app)
 
     # -------------------------- CORS --------------------------
@@ -108,16 +112,6 @@ def create_app(config_name='development'):
     # -------------------------- ROOT ROUTE --------------------------
     @app.route('/')
     def welcome():
-        return {
-            "message": "Green-Nexus Backend LIVE",
-            "version": "1.0.0",
-            "endpoints": {
-                "Auth": "/api/auth/*",
-                "Activities": "/api/activities/*",
-                "Waste Scanner": "/api/waste-scanner/*",
-                "Marketplace": "/api/chat"
-            }
-        }, 200
+        return {"message": "Green-Nexus Backend Live"}
 
-    # NO @before_first_request — MOVED TO run.py
     return app
