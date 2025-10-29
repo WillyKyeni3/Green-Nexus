@@ -1,3 +1,4 @@
+# server/app/routes/waste_scanner.py
 import os
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
@@ -98,6 +99,27 @@ def get_all_analysis_results():
     except Exception as e:
         print(f"Error in get_all_analysis_results: {str(e)}")
         return jsonify({'error': f'Failed to retrieve results: {str(e)}'}), 500
+
+# NEW ENDPOINT: Get recently scanned items
+@waste_scanner_bp.route('/recent', methods=['GET'])
+def get_recently_scanned():
+    """Get the 6 most recently analyzed waste items"""
+    try:
+        # Query the database for the 6 most recent WasteItem entries
+        # Order by created_at in descending order to get the latest first
+        recent_items = WasteItem.query.order_by(WasteItem.created_at.desc()).limit(6).all()
+        
+        # Convert the results to dictionaries
+        recent_items_data = [item.to_dict() for item in recent_items]
+        
+        return jsonify({
+            'success': True,
+            'data': recent_items_data,
+            'count': len(recent_items_data)
+        }), 200
+    except Exception as e:
+        print(f"Error in get_recently_scanned: {str(e)}")
+        return jsonify({'error': f'Failed to retrieve recent scans: {str(e)}'}), 500
 
 @waste_scanner_bp.route('/test', methods=['POST'])
 def test_endpoint():
