@@ -164,7 +164,7 @@ export default function EditProfile() {
       }
 
       // Call your backend API to change password
-      const response = await fetch('http://localhost:5000/api/auth/change-password', {
+      const response = await fetch('https://green-nexus-1.onrender.com///api/auth/change-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

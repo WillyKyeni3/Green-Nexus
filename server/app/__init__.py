@@ -3,7 +3,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from config import Config # Assuming you will create this file for configuration
+from flasgger import Swagger  # ← ADD THIS
+from config import Config
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -22,7 +23,7 @@ def create_app(config_name='development'):
     db.init_app(app)
     jwt.init_app(app)
 
-    # Enable CORS for frontend - combined configuration
+    # Enable CORS for frontend
     CORS(app, resources={
         r"/api/*": {
             "origins": [
@@ -37,6 +38,47 @@ def create_app(config_name='development'):
             "max_age": 3600
         }
     })
+
+    # ← ADD SWAGGER CONFIGURATION HERE
+    swagger_config = {
+        "headers": [],
+        "specs": [
+            {
+                "endpoint": 'apispec',
+                "route": '/apispec.json',
+                "rule_filter": lambda rule: True,
+                "model_filter": lambda tag: True,
+            }
+        ],
+        "static_url_path": "/flasgger_static",
+        "swagger_ui": True,
+        "specs_route": "/apidocs/"
+    }
+    
+    swagger_template = {
+        "info": {
+            "title": "GreenNexus API",
+            "description": "API documentation for GreenNexus Backend - Environmental tracking and waste management platform",
+            "version": "1.0.0",
+            "contact": {
+                "name": "GreenNexus Team",
+                "email": "support@greennexus.com"
+            }
+        },
+        "securityDefinitions": {
+            "Bearer": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header",
+                "description": "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
+            }
+        },
+        "security": [{"Bearer": []}]
+    }
+    
+    Swagger(app, config=swagger_config, template=swagger_template)
+    print("✅ Swagger documentation enabled at /apidocs/")
+    # ← END SWAGGER CONFIGURATION
 
     print("\n🚀 Registering API Blueprints...")
     
@@ -62,27 +104,26 @@ def create_app(config_name='development'):
     except ImportError:
         print("⚠️  Waste Scanner blueprint not configured yet")
 
-    # Marketplace blueprint - UNCOMMENTED to enable the chat API
     try:
         from app.routes.marketplace import marketplace_bp
-        app.register_blueprint(marketplace_bp) # This registers routes under /api/... as defined in the blueprint
+        app.register_blueprint(marketplace_bp)
         print("✅ Marketplace API registered at /api/chat")
     except ImportError as e:
         print(f"⚠️  Marketplace blueprint not found: {e}")
 
     print("✨ Blueprint registration complete!\n")
 
-    # Combined welcome route with both versions' information
     @app.route('/')
     def welcome():
         return {
             "message": "Welcome to Green-Nexus Backend!",
             "version": "1.0.0",
+            "documentation": "/apidocs/",  # ← ADD THIS
             "endpoints": {
                 "Activities": "/api/activities/*",
                 "Auth": "/api/auth/*",
                 "Waste Scanner": "/api/waste-scanner/*",
-                "Marketplace Chat": "/api/chat" # Add this to the welcome message
+                "Marketplace Chat": "/api/chat"
             }
         }, 200
 

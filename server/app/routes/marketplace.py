@@ -10,6 +10,58 @@ client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 @marketplace_bp.route('/chat', methods=['POST'])
 def ai_chat():
+    """
+    AI Chat Assistant
+    Get AI-powered recommendations for eco-friendly products available in Kenya
+    ---
+    tags:
+      - AI Marketplace
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - message
+          properties:
+            message:
+              type: string
+              example: "best sustainable water bottles 2025"
+              description: Your question about eco-friendly products
+    responses:
+      200:
+        description: AI response with product recommendations
+        schema:
+          type: object
+          properties:
+            response:
+              type: string
+              example: "Hello! 🌿 Here are my top sustainable water bottle recommendations for Kenya...\n\nSUMMARY\n...\n\nTOP 3 RECOMMENDATIONS\n..."
+              description: Formatted AI response with product recommendations, prices in Kshs, and where to buy in Kenya
+      400:
+        description: Bad request - missing or invalid message
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Request must be JSON"
+            response:
+              type: string
+              example: "Please send JSON data"
+      500:
+        description: Server error or OpenAI API error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "API key not configured"
+            response:
+              type: string
+              example: "AI is taking a green break! Try again later."
+    """
     try:
         # Debug: Print request details
         print("\n" + "="*50)
@@ -160,9 +212,31 @@ Rules:
         }), 500
 
 
-# Health check endpoint
 @marketplace_bp.route('/chat/health', methods=['GET'])
 def health_check():
+    """
+    Health Check
+    Check if the AI Marketplace service is running and OpenAI is configured
+    ---
+    tags:
+      - AI Marketplace
+    responses:
+      200:
+        description: Service is healthy
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: "healthy"
+            service:
+              type: string
+              example: "marketplace"
+            openai_configured:
+              type: boolean
+              example: true
+              description: Whether OpenAI API key is configured
+    """
     return jsonify({
         'status': 'healthy',
         'service': 'marketplace',
